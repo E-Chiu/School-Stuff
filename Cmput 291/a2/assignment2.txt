@@ -1,0 +1,41 @@
+.print Question 1 - echiu
+SELECT a.name AS AREA, COUNT(p.id) AS NUMPAPERS
+FROM areas a, papers p
+WHERE a.name = p.area AND p.decision = 'A' AND EXISTS
+(SELECT * FROM areas a, papers p WHERE a.name = p.area)
+GROUP BY a.name
+ORDER BY a.name;
+
+.print Question 2 - echiu
+SELECT p1.title AS PAPER, u.name AS AUTHOR, p1.c_session AS SESSIONAREA
+FROM papers p1, papers p2, users u
+WHERE p1.author = p2.author AND p1.c_session = p2.c_session AND p1.decision = 'A' AND u.email = p1.author AND p1.id = p2.id;
+
+.print Question 3 - echiu
+SELECT DISTINCT p.id AS PAPER, p.title AS TITLE
+FROM papers p, reviews r
+WHERE r.paper = p.id AND (r.overall > ((r.originality + r.importance + r.soundness)/3.0 * 1.33)
+OR r.overall < ((r.originality + r.importance + r.soundness)/3.0 * .66));
+
+.print Question 4 - echiu
+SELECT a.name AS AREA, u.email AS EMAIL, u.name AS REVIEWER
+FROM users u, reviews r, papers p, areas a LEFT OUTER JOIN 
+(SELECT a.name AS avgN, AVG(r.overall) AS avgO FROM reviews r, papers p, areas a WHERE r.paper = p.id AND p.area = a.name GROUP BY a.name) ON avgN = a.name
+WHERE u.email = r.reviewer AND r.paper = p.id AND p.area = a.name AND avgO > 4;
+
+.print Question 5 - echiu
+SELECT u.name AS NAME, p.title AS TITLE
+FROM users u LEFT OUTER JOIN reviews r ON u.email = r.reviewer LEFT OUTER JOIN papers p ON r.paper =  p.id
+ORDER BY u.name;
+
+.print Question 6 - echiu
+SELECT DISTINCT e.area FROM reviews r LEFT OUTER JOIN expertise e ON e.reviewer = r.reviewer, papers p, (SELECT COUNT(r.paper) as countC FROM users u, reviews r WHERE r.reviewer = u.email GROUP BY u.email)
+WHERE r.paper = p.id AND NOT EXISTS 
+(SELECT e.area FROM expertise e, (SELECT COUNT(r.paper) as countC, r.reviewer AS revC FROM users u, reviews r WHERE r.reviewer = u.email GROUP BY u.email) WHERE revC = e.reviewer AND countC != 2);
+
+.print Question 7 - echiu
+SELECT p.id, p.title, r.overall
+FROM reviews r, papers p LEFT OUTER JOIN (SELECT r.paper as TOPP, AVG(r.overall) *1.25 AS avgTOP FROM reviews r GROUP BY r.paper) ON TOPP = p.id LEFT OUTER JOIN
+(SELECT r.paper as BOTP, AVG(r.overall) *.75 AS avgBOT FROM reviews r GROUP BY r.paper) ON BOTP = p.id
+WHERE p.id = r.paper 
+AND (r.overall > avgTOP OR r.overall < avgBOT);

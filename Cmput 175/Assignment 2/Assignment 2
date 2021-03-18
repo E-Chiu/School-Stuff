@@ -1,0 +1,136 @@
+Assignment Specifications
+
+Problem : The Ultimate Meta Tic-Tac-Toe.
+
+Meta Tic Tac Toe is a board game composed of nine tic-tac-toe boards arranged in a 3-by-3 grid.
+In other words, it is a Tic-Tac-Toe board with 9 tic-tac-toe games. Players take turns playing
+in the smaller tic-tac-toe boards until one of them wins in the larger tic-tac-toe board.  
+Each small 3-by-3 tic-tac-toe board is referred to as a local board, and the larger 3-by-3 board 
+is referred to as the global board. In our ultimate meta tic-tac-toe game, we have a mixture of 
+tic-tac-toes. Each local board can be either classical (XO) or numerical (see Lab3) tic tac toe. 
+They are initialized at the beginning of the game based on a configuration file MetaTTTconfig.txt. 
+
+There are two players for the game. The game starts with Player 1 choosing any local board from 
+the global board to start, and makes a move on that local board. Player 2 then makes a move on 
+that same local board, then Player 1, and so on. The next moves must all be in that local board, 
+until that local board finishes.
+
+A local board is finished once it is won by a player, or it is filled completely without a winner 
+(i.e. a draw). Then the next player chooses another non-played local board to play, and makes a 
+move on that local board. After a local board is finished, the corresponding square on the global 
+board will be marked as X (when Player 1 wins the local board), O (when Player 2 wins the local board) 
+or D (the result of the local board is a draw). To win the whole game, a player needs to win the 
+global board. The player who succeeds in placing three of their marks in a horizontal, vertical, or 
+diagonal row is the winner. Moreover, a player may win the global game if the player is the last to 
+play a draw for a local board which results in 3 draws on the horizontal, vertical, or diagonal of 
+the global board. Game play ends when either a player wins the global board, or all 9 local boards 
+have been finished without a global winner (in which case the global game is a draw).
+
+The game starts with asking Player 1 to choose from the global board. In the global board, 'c' represents 
+a non-played classical tic-tac-toe, 'n' represents a non-played numerical tic-tac-toe, 'X' represents 
+a played tic-tac-toe won by Player 1, 'O' represents a played tic-tac-toe won by Player 2, and 'D' 
+represents a played tic-tac-toe which was a draw.
+
+The configuration file MetaTTTconfig.txt just contains 3*3 letters which are either 'c' or 'n', 
+separated by a single white space. An example of a configuration file can be like this:
+
+c c n
+c n c
+n c n
+Using the above configuration, a complete sample game is shown in SampleOut.txt.  
+***Notice that if Player 2 is the first player to make a move in a local Classical Tic Tac Toe game, 
+Player 2's mark in that local board is 'X'.  Similarly, if Player 2 is the first player to make a 
+move in a local Numerical Tic Tac Toe game, Player 2 enters odd numbers on that local board.
+
+
+Tasks to do
+Task 1
+Your task will be to write the two classes: NumTicTacToe and ClassicTicTacToe. Hint: these are very 
+similar to your Lab 3 exercise, and you may reuse code that you wrote for that lab (just be sure to 
+reference that with a comment at the top of your class). Each class must implement the following methods:
+
+   - __init__(): initialize the local game board, so that it is initially "empty”. You may represent 
+   empty squares however you like (e.g. using a zero, or empty string, or some other representation).
+
+    - drawBoard(): displays the current state of the local game board, along with the column indices 
+    on top of the board, and the row indices to the left of the board. Should not change the contents 
+    of the local game board itself.
+
+    - squareIsEmpty(row, col): returns True if the local board's square at the given row, column 
+    location is "empty”; returns False otherwise.
+
+    - update(row, col, mark): attempts to update the local board's contents at the given row, 
+    column location, so that the specified square changes from being empty to containing the given mark. 
+    (The mark will be a string for the Classic version; it will be an int for the Numeric version.) 
+    Returns True if update is made successfully; False otherwise.
+
+    - isWinner(): returns True if the local board contains a winning line of THREE squares 
+    (horizontal, vertical, diagonal); False otherwise. In the Classic version, a winning line consists 
+    of three of the same letters (either X or O). In the Numeric version, a winning line must have a 
+    line of three squares that add up to exactly 15.
+
+    - boardFull(): returns True if there are no "empty” squares; False otherwise.
+
+    - isNum(): returns True for Numeric boards; False for Classic boards.
+
+Do not forget to test your classes in isolation before you write the code of the game itself. Test 
+your class methods, one by one. Include these tests (along with comments, as appropriate) under if 
+__name__ == "__main__": at the bottom of your UltimateMetaTTT.pyfile. You will lose marks if you 
+do not include these tests for us to see.
+
+Task 2
+Your task will be to design a MetaTicTacToe class, and use the class to play games. The class will 
+store the state of the global game. We require the following methods to be implemented:
+
+    - __init__(configFile): create the game state by initializing it from the configuration file.  
+    The name of that configuration file is provided as input. Note that we may test this using 
+    different file contents than what is provided as an example in this description.
+
+    - drawBoard(): displays the current state of the global board (i.e. using 'n', 'c', 'X', 'O', or 'D'), 
+    along with the column indices on top of the board, and the row indices to the left of the board. 
+    Should not change the contents of the global game board itself.
+
+    - squareIsEmpty(row, col): checks if a local board at the given row, column location has been 
+    played yet or not. Returns True if the local board has not been played; False otherwise.
+
+    - update(row, col, result): attempts to update the global board at the given row, column 
+    location with the result ('X', 'O', or 'D') from the local board at that location. Returns 
+    True if that board was previously marked as unplayed and the update was made successfully; 
+    False otherwise.
+
+    - isWinner(): checks if the current player is a winner of the global game based on their 
+    most recent move (i.e. if their most recent move ended a local game, resulting in an update 
+    of the global game board). Returns True if the current player is a winner; False otherwise.
+
+    - boardFull(): returns True if the global board has no unplayed local boards; returns False 
+    if there is any local board still to be played.
+
+    - getLocalBoard(row, col):  returns the instance of the local board at the specified row, 
+    column location (i.e. either ClassicTicTacToe or NumTicTacToe, based on initialization), if 
+    it hasn't been played. Returns None if the local board has already been played. 
+
+Do not forget to test your class in isolation before you write the code of the game itself. Include
+your tests (along with comments, as appropriate) under if __name__ == "__main__": at the bottom of 
+your UltimateMetaTTT.py file. You will lose marks if you do not include these tests for us to see.
+
+The number of required methods may seem like a lot, but many of these methods are quite small, and 
+are designed so that interacting with the class is easier. A skeleton template class has been provided 
+with comments as to what is expected for each method, as well as a text file of sample output and input.
+
+Task 3
+Write the main program that imports these three classes and interacts with the user to play the 
+Ultimate Meta Tic-Tac-Toe.  Your final output (all displayed on the terminal screen) should match 
+up with what is shown in the sample output when the same input is entered.
+
+
+General Guidelines
+In addition to making sure that your code runs properly, we will also check that you follow good 
+programming practices. For example, divide the problem into smaller sub-problems, and write functions 
+to solve those sub-problems so that each function has a single purpose; use the most appropriate data 
+structures for your algorithm; use concise but descriptive variable names; define constants instead of 
+hardcoding literal values throughout your code; include meaningful comments to document your code, as 
+well as docstrings for all functions; and be sure to acknowledge any collaborators/references in a 
+header comment at the top of your Python file(s).
+Restrictions for this assignment: Do NOT change the method signatures for each class - implement your 
+classes exactly as described in the ADTs.  Do not use break/continue; do not import anything other 
+than the 3 tic tac toe classes described.
