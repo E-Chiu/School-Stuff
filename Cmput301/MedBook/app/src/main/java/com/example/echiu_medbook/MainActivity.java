@@ -26,9 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
         // initialize listview of medicines
         medView = findViewById(R.id.med_view);
+        /*
         medList = new ArrayList<>();
         medAdapter = new ArrayAdapter<>(this, R.layout.content, medList);
         medView.setAdapter(medAdapter);
+        */
     }
 
     // function to add medicine, called by button press
