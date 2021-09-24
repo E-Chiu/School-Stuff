@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 public class AddMedicineActivity extends AppCompatActivity {
-    String[] doseType = {"mg", "mcg", "drop"};
+    String[] doseTypes = new String[] {"mg", "mcg", "drop"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,8 +16,9 @@ public class AddMedicineActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_medicine);
 
         Spinner doseType = (Spinner) findViewById(R.id.dose_unit_dropdown);
-        ArrayAdapter<String> units = new ArrayAdapter(this, android.R.layout.simple_spinner_item, doseType);
-
+        ArrayAdapter units = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, doseTypes);
+        units.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        doseType.setAdapter(units);
     }
 
     public void cancel(View view) { // finish activity without doing anything
