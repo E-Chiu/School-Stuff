@@ -1,5 +1,6 @@
 package com.example.echiu_medbook;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -27,13 +28,23 @@ public class MainActivity extends AppCompatActivity {
         // initialize listview of medicines
         medView = (ListView) findViewById(R.id.med_view);
         medList = new ArrayList<>();
-        medAdapter = new ArrayAdapter<>(this, R.layout.content, medList);
+        medAdapter = new CustomList(this, medList);
         medView.setAdapter(medAdapter);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) { // if data was sent over make a new class with it
+            Medicine newMedicine = (Medicine) data.getParcelableExtra("newMed");
+            medAdapter.add(newMedicine);
+        }
     }
 
     // function to add medicine, called by button press
     public void addMedicine(View view) {
         Intent intent = new Intent(this, AddMedicineActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,1);
     }
 }

@@ -10,14 +10,15 @@
         android:id="@+id/add_med"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_marginTop="76dp"
         android:layout_marginEnd="92dp"
         android:layout_marginBottom="16dp"
+        android:onClick="add"
         android:text="Add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/cancel_add_med"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumber2" />
+        app:layout_constraintTop_toBottomOf="@+id/set_frequency_box" />
 
     <Button
         android:id="@+id/cancel_add_med"
@@ -32,11 +33,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumber2" />
+        app:layout_constraintTop_toBottomOf="@+id/set_frequency_box" />
 
     <TextView
         android:id="@+id/add_new_medicine_text"
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="51dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="34dp"
@@ -55,12 +56,12 @@
         android:layout_marginTop="32dp"
         android:text="Set Date"
         app:layout_constraintBottom_toTopOf="@+id/add_name_text"
-        app:layout_constraintEnd_toStartOf="@+id/calendarView"
+        app:layout_constraintEnd_toStartOf="@+id/medDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_new_medicine_text" />
 
     <CalendarView
-        android:id="@+id/calendarView"
+        android:id="@+id/medDate"
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_marginStart="9dp"
@@ -99,14 +100,14 @@
         app:layout_constraintBottom_toTopOf="@+id/set_dose_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/add_name_text"
-        app:layout_constraintTop_toBottomOf="@+id/calendarView" />
+        app:layout_constraintTop_toBottomOf="@+id/medDate" />
 
     <TextView
         android:id="@+id/add_dose_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="40dp"
         android:text="Dose:"
         app:layout_constraintBottom_toTopOf="@+id/set_frequency_text"
@@ -126,7 +127,7 @@
         android:ems="10"
         android:hint="set dose"
         android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/editTextNumber2"
+        app:layout_constraintBottom_toTopOf="@+id/set_frequency_box"
         app:layout_constraintEnd_toStartOf="@+id/dose_unit_dropdown"
         app:layout_constraintStart_toEndOf="@+id/add_dose_text"
         app:layout_constraintTop_toBottomOf="@+id/set_name_box" />
@@ -136,10 +137,14 @@
         android:layout_width="78dp"
         android:layout_height="45dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextNumber2"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:gravity="left"
+        android:padding="5dip"
+        app:layout_constraintBottom_toTopOf="@+id/set_frequency_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/set_dose_box"
         app:layout_constraintTop_toBottomOf="@+id/set_name_box"
@@ -150,7 +155,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="9dp"
         android:layout_marginEnd="326dp"
         android:layout_marginBottom="152dp"
         android:text="Frequency:"
@@ -160,11 +164,10 @@
         app:layout_constraintTop_toBottomOf="@+id/add_dose_text" />
 
     <EditText
-        android:id="@+id/editTextNumber2"
+        android:id="@+id/set_frequency_box"
         android:layout_width="267dp"
         android:layout_height="44dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="86dp"
+        android:layout_marginBottom="76dp"
         android:ems="10"
         android:hint="set frequency"
         android:inputType="number"
