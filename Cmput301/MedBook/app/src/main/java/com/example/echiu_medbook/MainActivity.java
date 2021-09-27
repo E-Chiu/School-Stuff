@@ -38,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     ListView medView;
     ArrayAdapter<Medicine> medAdapter;
     ArrayList<Medicine> medList; //list of medicines
+    TextView dailyDoseView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        dailyDoseView = (TextView) findViewById(R.id.daily_doses_text);
         if (resultCode == RESULT_OK) { // if data was sent over make a new class with it
             Medicine newMedicine = (Medicine) data.getParcelableExtra("newMed");
             if (newMedicine != null) { // if new medicine was sent over add to list
@@ -93,6 +96,18 @@ public class MainActivity extends AppCompatActivity {
                 medAdapter.notifyDataSetChanged();
             }
         } // otherwise it is a cancel
+        // update dailydoses
+        int doseInt = 0;
+        for (int i = 0; i < medList.size(); i++) {
+            doseInt = doseInt + Integer.parseInt(medList.get(i).getFreq().replace("Freq: ", ""));
+        }
+        String dailyDoses = String.valueOf(doseInt);
+        dailyDoseView.setText("Total Daily Doses: " + dailyDoses);
+    }
+
+    @Override
+    public void onBackPressed() { // override device back button
+        moveTaskToBack(true);
     }
 
     // function to add medicine, called by button press

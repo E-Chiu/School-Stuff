@@ -42,4 +42,12 @@
         android:layout_height="wrap_content">
     </ListView>
 
+    <TextView
+        android:id="@+id/daily_doses_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Daily Doses: 0"
+        android:layout_gravity="bottom|center"
+        android:visibility="visible" />
+
 </FrameLayout>

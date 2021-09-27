@@ -82,6 +82,11 @@ public class AddMedicineActivity extends AppCompatActivity implements AdapterVie
         super.finish();
     }
 
+    @Override
+    public void onBackPressed() { // override device back button
+        moveTaskToBack(true);
+    }
+
     public void add(@NonNull View view) {
         EditText medName = (EditText) findViewById(R.id.set_name_box);
         EditText medDose = (EditText) findViewById(R.id.set_dose_box);
