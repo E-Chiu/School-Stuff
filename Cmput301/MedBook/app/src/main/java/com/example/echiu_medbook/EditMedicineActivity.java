@@ -13,7 +13,6 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  */
-
 package com.example.echiu_medbook;
 
 import androidx.annotation.NonNull;
@@ -35,26 +34,56 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AddMedicineActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class EditMedicineActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     String[] doseTypes = new String[] {"mg", "mcg", "drop"};
     ArrayAdapter<String> units;
     String selectedDate;
+    Intent intent;
+    Medicine medicine;
+    int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_medicine);
+        setContentView(R.layout.activity_edit_medicine);
+
+        intent = getIntent();
+        medicine = intent.getParcelableExtra("selectedMed");
+        position = intent.getIntExtra("position", 0);
 
         Spinner doseType = (Spinner) findViewById(R.id.dose_unit_dropdown);
         units = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, doseTypes);
         units.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         doseType.setAdapter(units);
 
-        CalendarView medDate = (CalendarView) findViewById(R.id.medDate);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        selectedDate = sdf.format(new Date(medDate.getDate())); // set current date as selected date
+        // set fields to be current attributes of the selected medicine
+        // remove all attribute names
+        EditText medName = (EditText) findViewById(R.id.set_name_box);
+        medName.setText(medicine.getName().replace("Name: ", ""));
+        EditText medDose = (EditText) findViewById(R.id.set_dose_box);
+        medDose.setText(medicine.getDoseAmount().replace("Dose: ", ""));
+        EditText medFreq = (EditText) findViewById(R.id.set_frequency_box);
+        medFreq.setText(medicine.getFreq().replace("Freq: ", ""));
 
-        medDate.setOnDateChangeListener(new CalendarView.OnDateChangeListener() { // get new date if one is selected
+        CalendarView medDate = (CalendarView) findViewById(R.id.medDate);
+
+        // set calendar view to current date
+        String dateSplit[] = medicine.getDate().replace("Date: ", "").split("/");
+        int day = Integer.parseInt(dateSplit[0]);
+        int month = Integer.parseInt(dateSplit[1]);
+        int year = Integer.parseInt(dateSplit[2]);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.YEAR, year);
+        calendar.set(calendar.MONTH, month - 1);
+        calendar.set(calendar.DAY_OF_MONTH, day);
+        long milliTime = calendar.getTimeInMillis();
+        medDate.setDate(milliTime, true, true);
+
+        // set selected date
+        selectedDate = medicine.getDate().replace("Date: ", "");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        medDate.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int day) {
                 String sDay = String.valueOf(day);
@@ -82,7 +111,15 @@ public class AddMedicineActivity extends AppCompatActivity implements AdapterVie
         super.finish();
     }
 
-    public void add(@NonNull View view) {
+    public void delete(View view) { // say you wish to delete this activity
+        Intent returnVals = new Intent();
+        returnVals.putExtra("delete", "y"); // send message that they wish to delete this
+        returnVals.putExtra("position", position);
+        setResult(RESULT_CANCELED, returnVals);
+        super.finish();
+    }
+
+    public void edit(@NonNull View view) {
         EditText medName = (EditText) findViewById(R.id.set_name_box);
         EditText medDose = (EditText) findViewById(R.id.set_dose_box);
         Spinner medUnit = (Spinner) findViewById(R.id.dose_unit_dropdown);
@@ -106,10 +143,11 @@ public class AddMedicineActivity extends AppCompatActivity implements AdapterVie
             Toast.makeText(this, "Please enter a positive number!", Toast.LENGTH_SHORT).show();
             return;
         }
-        // add to new medicine class
-        Medicine newMedicine = new Medicine(selectedDate, name, doseString, unit, freqString);
-        Intent returnVals = new Intent(this, AddMedicineActivity.class); // return newly made medicine
-        returnVals.putExtra("newMed", newMedicine);
+        // edit medicine class
+        Medicine editMedicine = new Medicine(selectedDate, name, doseString, unit, freqString);
+        Intent returnVals = new Intent(this, EditMedicineActivity.class);
+        returnVals.putExtra("editMed", editMedicine); // return edited medicine
+        returnVals.putExtra("position", position);
         setResult(RESULT_OK, returnVals);
         finish();
     }

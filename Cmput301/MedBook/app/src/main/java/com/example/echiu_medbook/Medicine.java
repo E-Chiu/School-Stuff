@@ -1,3 +1,18 @@
+/*
+    Copyright [2021] [Ethan Chiu]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
 package com.example.echiu_medbook;
 
 import android.os.Parcel;
@@ -15,13 +30,14 @@ public class Medicine implements Parcelable {
     Medicine() {}
 
     Medicine(String date, String name, String doseAmount, String doseUnit, String freq) {
-        this.date = date;
-        this.name = name;
-        this.doseAmount = doseAmount;
-        this.doseUnit = doseUnit;
-        this.freq = freq;
+        this.date = "Date: " + date;
+        this.name = "Name: " + name;
+        this.doseAmount = "Dose: " + doseAmount;
+        this.doseUnit = "Unit: "+ doseUnit;
+        this.freq = "Freq: " + freq;
     }
 
+    // getters and setters
     public String getDate() {
         return date;
     }
@@ -66,6 +82,8 @@ public class Medicine implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
+    // Parcelable implementations, generated using the Parcelable addon
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {

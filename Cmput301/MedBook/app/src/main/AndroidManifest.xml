@@ -13,6 +13,9 @@
             android:name=".AddMedicineActivity"
             android:exported="true" />
         <activity
+            android:name=".EditMedicineActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
