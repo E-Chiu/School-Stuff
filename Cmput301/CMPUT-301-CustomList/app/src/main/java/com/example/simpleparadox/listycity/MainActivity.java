@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ListView cityList;
     ArrayAdapter<City> cityAdapter;
     ArrayList<City> cityDataList;
+    String selectedCity = "";
 
     CustomList customList;
 
@@ -43,12 +45,14 @@ public class MainActivity extends AppCompatActivity {
 
         final String TAG = "Sample";
         Button addCityButton;
+        Button delCityButton;
         final EditText addCityEditText;
         final EditText addProvinceEditText;
         FirebaseFirestore db;
 
         cityList = findViewById(R.id.city_list);
         addCityButton = findViewById(R.id.add_city_button);
+        delCityButton = findViewById(R.id.del_city_button);
         addCityEditText = findViewById(R.id.add_city_field);
         addProvinceEditText = findViewById(R.id.add_province_edit_text);
 
@@ -64,6 +68,38 @@ public class MainActivity extends AppCompatActivity {
 
         // Get a top level reference to the collection
         final CollectionReference collectionReference = db.collection("Cities");
+
+        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectedCity = cityAdapter.getItem(position).getCityName();
+            }
+        });
+
+        delCityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedCity != "") {
+                    // if there is city remove from db
+                    collectionReference
+                            .document(selectedCity)
+                            .delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d(TAG, "Data has been removed successfully!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "Data could not be removed!" + e.toString());
+                                }
+                            });
+                }
+                selectedCity = "";
+            }
+        });
 
         addCityButton.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -125,15 +161,6 @@ public class MainActivity extends AppCompatActivity {
                 cityAdapter.notifyDataSetChanged(); // Notifying the adapter to render any new data fetched from the cloud
             }
         });
-
-//        dataList = new ArrayList<>();
-//        dataList.addAll(Arrays.asList(cities));
-//
-//        cityAdapter = new ArrayAdapter<>(this, R.layout.content, dataList);
-//
-//        cityList.setAdapter(cityAdapter);
-
-
 
     }
 
