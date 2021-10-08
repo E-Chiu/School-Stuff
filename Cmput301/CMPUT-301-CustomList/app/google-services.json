@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1040289522942",
+    "project_id": "cmput301firebaseproject",
+    "storage_bucket": "cmput301firebaseproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040289522942:android:4533541ade1064c429b1af",
+        "android_client_info": {
+          "package_name": "com.example.simpleparadox.listycity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1040289522942-2vdg14jf9342r4i69p7cv8l1hlvl4kh5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAkv2w-uUEl-sxABZlL8l8_LTnHEB55fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1040289522942-2vdg14jf9342r4i69p7cv8l1hlvl4kh5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
