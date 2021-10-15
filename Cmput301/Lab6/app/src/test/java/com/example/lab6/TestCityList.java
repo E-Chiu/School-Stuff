@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 
 public class TestCityList {
     private CityList cityList = new CityList();
-    private City city = new City("Edmonton", "ALb");
+    private City city = new City("Edmonton", "Alberta");
+    private City tempCity = new City("Edmonton", "Ontario");
 
     @BeforeEach
     void mockCityList() {
@@ -37,6 +38,26 @@ public class TestCityList {
                     ()->assertEquals("Edmonton", cityList.getCities().get(0).getCityName())
             );
     }
+
+    @Test
+    void testHasCity() {
+        assertAll("Mock Checkup",
+                ()->assertEquals(true, cityList.hasCity(city)),
+                ()->assertEquals(false, cityList.hasCity(tempCity))
+                );
+    }
+
+    @Test
+    void testDelete() {
+        assertThrows(IllegalArgumentException.class,
+                ()->{cityList.delete(tempCity);});
+    }
+
+    @Test
+    void testCountCities() {
+        assertEquals(1, cityList.countCities());
+    }
+
     @AfterEach
     void runAfterTestCase() {
 
