@@ -51,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
         cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                City city = (City) adapterView.getItemAtPosition(i);
-                String name = city.getName();
+                String name = (String) adapterView.getItemAtPosition(i);
 
                 Intent intent = new Intent(getApplicationContext(), show_activity.class);
                 intent.putExtra("name", name);
