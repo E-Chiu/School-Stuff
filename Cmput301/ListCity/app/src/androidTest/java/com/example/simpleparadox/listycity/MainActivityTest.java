@@ -5,6 +5,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import com.robotium.solo.Solo;
 import org.junit.After;
 import org.junit.Before;
@@ -76,11 +78,32 @@ find minimum one match. */
         solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
         solo.clickOnView(solo.getView(R.id.button_confirm));
         solo.waitForText("Edmonton", 1, 2000);
-// Get MainActivity to access its variables and methods.
+        // Get MainActivity to access its variables and methods.
         MainActivity activity = (MainActivity) solo.getCurrentActivity();
         final ListView cityList = activity.cityList; // Get the listview
         String city = (String) cityList.getItemAtPosition(0); // Get item from first position
         assertEquals("Edmonton", city);
+    }
+
+    @Test
+    public void checkShowActivity() {
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
+        solo.clickOnButton("ADD CITY");
+        solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
+        solo.clickOnView(solo.getView(R.id.button_confirm));
+        solo.waitForText("Edmonton", 1, 2000);
+
+        solo.clickInList(0);
+        // test 1
+        solo.assertCurrentActivity("Wrong Activity", show_activity.class);
+        // test 2
+        show_activity activity = (show_activity) solo.getCurrentActivity();
+        final TextView city_name = activity.findViewById(R.id.city_name);
+        String name = (String) city_name.getText();
+        assertEquals("Edmonton", name);
+        // test 3
+        solo.clickOnButton("BACK");
+        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
     }
 
     /**
