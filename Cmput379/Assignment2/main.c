@@ -5,7 +5,7 @@
 #include <time.h>
 #include <string.h>
 #include <semaphore.h>
-#include "tands.c"
+#include "header.h"
 
 // main c file, handling of the inputs will be done here
 
@@ -30,7 +30,7 @@ int queueSize;
 int threadID = 0;
 
 struct Summary summary; // make summary struct
-FILE *logFile;
+FILE *logFile; // open file for output
 
 // variable to notify when all jobs are recieved
 int done = 0;
@@ -41,13 +41,15 @@ void *threadStart(void *vargp) { // thread starts and waits for a job, sending s
     sem_wait(&mutex);
     ID = threadID; // get the id of this thread and increment it for the next thread
     threadID++;
-    sem_post(&mutex);
     printf("ID= %d      Ask", ID); // print that this thread is asking for work
-    while (!done) { // infinetley run until last argument has been recieved
+    summary.Ask += 1;
+    sem_post(&mutex);
+    while (!done) { // infiniteley run until last argument has been recieved
         sem_wait(&mutex); // wait for turn to enter cs
         if (queueSize > 0) { // check if there are any jobs in queue
             n = jobsQueue[queueSize]; // get n of current task
             printf("ID= %d Q= %d Recieve    %d", ID, queueSize, n); // announce you are doing the job
+            summary.Recieve += 1;
             queueSize--; // decrement queue size
             summary.Work += 1;
             sem_post(&mutex);
@@ -55,6 +57,10 @@ void *threadStart(void *vargp) { // thread starts and waits for a job, sending s
             Trans(n); // run trans function
             printf("ID= %d      Complete   %d", ID, n); // print that this thread is done working
             printf("ID= %d      Ask", ID); // print that this thread is asking for work
+            sem_wait(&mutex);
+            summary.Complete += 1;
+            summary.Ask += 1;
+            sem_post(&mutex);
         } else { // otherwise do nothing and free semaphore
             sem_post(&mutex);
         }
@@ -95,6 +101,13 @@ int getInt(char string[JOB_SIZE]) { // function gets number from currjob
     return n;
 }
 
+int printSummary(int threadNum) { // function prints out all the properties of the summary struct
+    printf("Summary:\nWork: %d\nAsk: %d\nRecieve: %d\nComplete: %d\nSleep: %d\n", summary.Work, summary.Ask, summary.Recieve, summary.Complete, summary.Sleep); // print out summary
+    for (int i = 0; i < threadNum; i++) { // loop and print out # of jobs done per thread
+        printf("Thread%d: %d", i, summary.Thread[i]);
+    }
+}
+
 int main(int argc, char *argv[]) {
     // ensure arguments were given
     if (argc == 1) {
@@ -122,7 +135,7 @@ int main(int argc, char *argv[]) {
     createThreads(threadNum, threadTid); // make requested amount of threads
     char currJob[JOB_SIZE];
     fgets(currJob, JOB_SIZE, stdin); // get next task
-    while(feof(stdin)) {
+    while(*currJob != EOF) {
         if (strchr(currJob, 'S')) { // if you are to sleep then sleep
                 int n = getInt(currJob);
                 sem_wait(&mutex);
@@ -143,5 +156,7 @@ int main(int argc, char *argv[]) {
             }
     }
     done = 1; // notify threads that all tasks have been given
+    printSummary(threadNum); // print out summary
+    fclose(logFile) // close log file
     closeThreads(threadNum, threadTid); // close all the threads
 }
