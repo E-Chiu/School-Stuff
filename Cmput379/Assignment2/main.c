@@ -12,6 +12,7 @@
 #define JOB_SIZE 4 // T100 4 chars
 #define STRING_BUFFER 100 // character buffer since i am unsure how big characters will be
 
+// struct to hold the final stats
 struct Summary {
     int Work;
     int Ask;
@@ -30,12 +31,13 @@ int queueTail = -1;
 int queueSize;
 int threadID = 1; // starts at one since parent is 0
 
+// general global variables
 struct Summary summary; // make summary struct
 FILE *logFile; // open file for output
+int maxSize; // maximum size of the array
 
 // variable to notify when all jobs are recieved
 int done = 0;
-int maxSize;
 
 int getTime() { // gets time
     time_t currTime = time(NULL);
