@@ -9,14 +9,29 @@
 
 // main c file, handling of the inputs will be done here
 
-// initialize global variables for semaphore
-queueHead = -1;
-ueueTail = -1;
-queueSize;
-threadID = 1; // starts at one since parent is 0
+// declare semaphore variables
+sem_t mutex;
+int *jobsQueue;
+int queueHead;
+int queueTail;
+int queueSize;
+int threadID;
 
-// intialize other global variables
-done = 0; // variable to notify when all jobs are recieved
+// initialize global variables for semaphore
+int queueHead = -1;
+int QueueTail = -1;
+int queueSize;
+int threadID = 1; // starts at one since parent is 0
+
+// intialize or declare other global variables
+struct Summary summary; // make summary struct
+int done = 0; // variable to notify when all jobs are recieved
+FILE * logFile;
+int maxSize;  // maximum size of the array
+int done;  // variable to notify when all jobs are recieved
+clock_t startTime; // start time of the program used to 
+float lastTime; // last time recieved by getTime used to print total transactions
+
 
 int main(int argc, char *argv[]) {
     startTime = clock(); // get start time
@@ -57,7 +72,7 @@ int main(int argc, char *argv[]) {
                 summary.Sleep += 1;
                 sem_post(&mutex);
                 Sleep(n); // call sleep function
-                printf("\n   %0.3f ID= 0      Sleep %5d", getTime(), n); // print that parent is sleeping
+                fprintf(logFile, "\n   %0.3f ID= 0      Sleep %5d", getTime(), n); // print that parent is sleeping
             } else if(strchr(currJob, 'T')) { // if new trans job
                 if (getQueueSize() == threadNum * 2) { // if queue is full then wait for spot to be free
                     waitForSpot(threadNum);
@@ -72,7 +87,7 @@ int main(int argc, char *argv[]) {
                 jobsQueue[queueTail] = n; // add number to array
                 queueSize++; // increment queue size
                 summary.Ask += 1;
-                printf("\n   %0.3f ID= 0 Q= %d Work %6d", getTime(), queueSize, n); // print that parent recieved new job
+                fprintf(logFile, "\n   %0.3f ID= 0 Q= %d Work %6d", getTime(), queueSize, n); // print that parent recieved new job
                 sem_post(&mutex); // exit cs
             }
     }

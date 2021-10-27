@@ -48,6 +48,6 @@ int getQueueSize();
 
 void waitForSpot(int threadNum);
 
-int getInt(char string[JOB_SIZE])
+int getInt(char string[JOB_SIZE]);
 
 int printSummary(int threadNum);

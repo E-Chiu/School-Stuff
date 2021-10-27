@@ -7,6 +7,23 @@
 #include <semaphore.h>
 #include "header.h"
 
+// declare semaphore variables
+sem_t mutex;
+int *jobsQueue;
+int queueHead;
+int queueTail;
+int queueSize;
+int threadID;
+
+// decalare other global variables
+struct Summary summary; // make summary struct
+FILE *logFile; // open file for output
+int maxSize;  // maximum size of the array
+int done;  // variable to notify when all jobs are recieved
+clock_t startTime; // start time of the program used to 
+float lastTime; // last time recieved by getTime used to print total transactions
+
+
 // all the functions needed by main.c are declared here
 
 float getTime() { // gets time
@@ -23,7 +40,7 @@ void *threadStart(void *vargp) { // thread starts and waits for a job, sending s
     sem_wait(&mutex);
     ID = threadID; // get the id of this thread and increment it for the next thread
     threadID++;
-    printf("\n   %0.3f ID= %d      Ask", getTime(), ID); // print that this thread is asking for work
+    fprintf(logFile, "\n   %0.3f ID= %d      Ask", getTime(), ID); // print that this thread is asking for work
     summary.Ask += 1;
     sem_post(&mutex);
 
@@ -37,7 +54,7 @@ void *threadStart(void *vargp) { // thread starts and waits for a job, sending s
             } else { // otherwise move head forward normally
                 queueHead == (queueHead + 1) % maxSize;
             }
-            printf("\n   %0.3f ID= %d Q= %d Recieve %3d", getTime(), ID, queueSize, n); // announce you are doing the job
+            fprintf(logFile, "\n   %0.3f ID= %d Q= %d Recieve %3d", getTime(), ID, queueSize, n); // announce you are doing the job
             summary.Recieve += 1;
             queueSize--; // decrement queue size
             summary.Work += 1;
@@ -45,8 +62,8 @@ void *threadStart(void *vargp) { // thread starts and waits for a job, sending s
             sem_post(&mutex);
 
             Trans(n); // run trans function
-            printf("\n   %0.3f ID= %d      Complete %2d", getTime(), ID, n); // print that this thread is done working
-            printf("\n   %0.3f ID= %d      Ask", getTime(), ID); // print that this thread is asking for work
+            fprintf(logFile, "\n   %0.3f ID= %d      Complete %2d", getTime(), ID, n); // print that this thread is done working
+            fprintf(logFile, "\n   %0.3f ID= %d      Ask", getTime(), ID); // print that this thread is asking for work
             fflush(stdout); // flush stdout just in case
             sem_wait(&mutex);
             summary.Complete += 1;
@@ -94,9 +111,9 @@ int getInt(char string[JOB_SIZE]) { // function gets number from currjob
 
 int printSummary(int threadNum) { // function prints out all the properties of the summary struct
     fflush(stdout);
-    printf("Summary:\n   Work: %12d\n   Ask: %13d\n   Recieve: %9d\n   Complete: %8d\n   Sleep: %11d", summary.Work, summary.Ask, summary.Recieve, summary.Complete, summary.Sleep); // print out summary
+    fprintf(logFile, "Summary:\n   Work: %12d\n   Ask: %13d\n   Recieve: %9d\n   Complete: %8d\n   Sleep: %11d", summary.Work, summary.Ask, summary.Recieve, summary.Complete, summary.Sleep); // print out summary
     for (int i = 0; i < threadNum; i++) { // loop and print out # of jobs done per thread
-        printf("\n   Thread %d: %8d", i + 1, summary.Thread[i]);
+        fprintf(logFile, "\n   Thread %d: %8d", i + 1, summary.Thread[i]);
     }
-    printf("\nTransactions per second: %2.2f", summary.Work / lastTime);
+    fprintf(logFile, "\nTransactions per second: %2.2f", summary.Work / lastTime);
 }

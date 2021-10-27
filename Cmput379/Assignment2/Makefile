@@ -1,2 +1,2 @@
-assignment2: main.c functions.c
-	gcc -pthread -o prodcon main.c functions.c -I -O 
+assignment2: main.c functions.c tands.c header.h
+	gcc -pthread -o prodcon main.c functions.c tands.c -I -O 
