@@ -1,0 +1,19 @@
+/*
+cmput 201 l8q1
+Date Oct 21, 2020
+Refrences: none
+Lab Section: D01
+Name: Ethan Chiu
+*/
+
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+
+int main() {
+   char thingsArr[11][101] = {}; // 11 words 100 chars max
+   for (int i = 0; i < 11; i++) { // loop and get inputs
+      gets(&thingsArr[i]);
+      printf("%s\n", thingsArr[i]);
+   }
+}

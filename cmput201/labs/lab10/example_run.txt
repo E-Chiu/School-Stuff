@@ -1,0 +1,10 @@
+addition for 2, 3.5 is 5.500000
+addition for 2, 3 is 5
+Usage ./l10 [add|sub|mul|div|mod|pow|log Num Num]division for 2, 5 is 0
+division for 2, 5.0 is 0.400000
+division cannot be performed for 2, 0
+division cannot be performed for 2, 0.0
+power for -0.9, 1.2 is -nan
+logarithm for 2, -5 is nan
+logarithm for 2, 8 is 3.000000
+Usage: ./l10 [add|sub|mul|div|mod|pow|log Num Num]

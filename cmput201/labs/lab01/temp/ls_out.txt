@@ -1,0 +1,2 @@
+total 1.0K
+-rw------- 1 echiu ugrad 0 Sep  8 09:33 ls_com.txt

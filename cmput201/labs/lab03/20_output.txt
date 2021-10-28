@@ -1,0 +1,2 @@
+Enter 20 integers:Largest: 46
+Second largest: 37
