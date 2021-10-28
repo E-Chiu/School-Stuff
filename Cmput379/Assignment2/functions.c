@@ -111,7 +111,7 @@ int getInt(char string[JOB_SIZE]) { // function gets number from currjob
 
 int printSummary(int threadNum) { // function prints out all the properties of the summary struct
     fflush(stdout);
-    fprintf(logFile, "Summary:\n   Work: %12d\n   Ask: %13d\n   Recieve: %9d\n   Complete: %8d\n   Sleep: %11d", summary.Work, summary.Ask, summary.Recieve, summary.Complete, summary.Sleep); // print out summary
+    fprintf(logFile, "\nSummary:\n   Work: %12d\n   Ask: %13d\n   Recieve: %9d\n   Complete: %8d\n   Sleep: %11d", summary.Work, summary.Ask, summary.Recieve, summary.Complete, summary.Sleep); // print out summary
     for (int i = 0; i < threadNum; i++) { // loop and print out # of jobs done per thread
         fprintf(logFile, "\n   Thread %d: %8d", i + 1, summary.Thread[i]);
     }
