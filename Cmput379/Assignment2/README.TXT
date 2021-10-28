@@ -1,0 +1,5 @@
+README FOR ASSIGNMENT 2
+STUDENT: echiu
+
+INCLUDED FILES:
+main.c: the 
