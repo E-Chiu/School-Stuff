@@ -1,33 +1,77 @@
 #DEFINE BUFFER_SIZE 4 // T100 is 4 chars
 
-#include <stdio.h>
+/*
+	C ECHO client example using sockets taken from binarytides.com
+*/
 #include <time.h>
+#include <stdio.h>	//printf
+#include <string.h>	//strlen
+#include <sys/socket.h>	//socket
+#include <arpa/inet.h>	//inet_addr
+#include <unistd.h>
 
-char input[BUFFER_SIZE];
+int main(int argc , char *argv[])
+{
 
-int getInt(char string[JOB_SIZE]) { // function gets number from currjob
-    strncpy(string, string, JOB_SIZE - 1); // remove job type
-    string[JOB_SIZE - 1] = '\0'; // re-append \0
-    int n = atoi(string);
-    return n;
-}
+    int portNum = argv[1]; // get portnum from command line
 
-int main(int argc , char *argv[]) {
-    if (argc == 1) { // get port number
-        int portNum = argv[1];
-    } else if (argc == 2) { // get port number and ip to run on
-        int portNum = argv[1];
-        int ipAddr = argv[2];
-    }
+	// ensure port number is in the correct range
+	if (portNum < 5000 || portNum > 64000) {
+		printf("Port Number out of Range!");
+		exit();
+	}
 
-    while(fgets(currJob, JOB_SIZE, stdin) != NULL) { // loop until EOF is detected
-        if (strchr(currJob, 'S')) { // if you are to sleep then sleep
-                memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
-                int n = getInt(currJob);
-                Sleep(n); // call sleep function
-            } else if(strchr(currJob, 'T')) { // if new trans job
-                int n = getInt(currJob);
-                Trans(n);
-            }
-    }
+    char[15] *ipAddr = argv[2]; // get ip address
+
+	int sock;
+	struct sockaddr_in server;
+	char message[1000] , server_reply[2000];
+	
+	//Create socket
+	sock = socket(AF_INET , SOCK_STREAM , 0);
+	if (sock == -1)
+	{
+		printf("Could not create socket");
+	}
+	puts("Socket created");
+	
+	server.sin_addr.s_addr = inet_addr(ipAddr); // changed to connect with given ip
+	server.sin_family = AF_INET;
+	server.sin_port = htons( portNum ); // changed to connect to given port
+
+	//Connect to remote server
+	if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0)
+	{
+		perror("connect failed. Error");
+		return 1;
+	}
+	
+	puts("Connected\n");
+	
+	//keep communicating with server
+	while(1)
+	{
+		printf("Enter message : ");
+		scanf("%s" , message);
+		
+		//Send some data
+		if( send(sock , message , strlen(message) , 0) < 0)
+		{
+			puts("Send failed");
+			return 1;
+		}
+		
+		//Receive a reply from the server
+		if( recv(sock , server_reply , 2000 , 0) < 0)
+		{
+			puts("recv failed");
+			break;
+		}
+		
+		puts("Server reply :");
+		puts(server_reply);
+	}
+	
+	close(sock);
+	return 0;
 }
