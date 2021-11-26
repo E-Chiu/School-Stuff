@@ -1,3 +1,5 @@
+#define BUFFER_SIZE 4 // T100 is 4 chars
+
 /*
 	C socket server example taken from binarytides.com
 */
@@ -8,6 +10,13 @@
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
 #include<stdlib.h>
+
+int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
+    strncpy(string, string, BUFFER_SIZE - 1); // remove job type
+    string[BUFFER_SIZE - 1] = '\0'; // re-append \0
+    int n = atoi(string);
+    return n;
+}
 
 int main(int argc , char *argv[])
 {
@@ -24,7 +33,7 @@ int main(int argc , char *argv[])
 
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
-	char client_message[2000];
+	char clientJob[2000];
 	
 	//Create socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -32,7 +41,7 @@ int main(int argc , char *argv[])
 	{
 		printf("Could not create socket");
 	}
-	puts("Socket created");
+	//puts("Socket created");
 	
 	//Prepare the sockaddr_in structure
 	server.sin_family = AF_INET;
@@ -46,13 +55,13 @@ int main(int argc , char *argv[])
 		perror("bind failed. Error");
 		return 1;
 	}
-	puts("bind done");
+	//puts("bind done");
 	
 	//Listen
 	listen(socket_desc , 3);
 	
 	//Accept and incoming connection
-	puts("Waiting for incoming connections...");
+	//puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
 	
 	//accept connection from an incoming client
@@ -65,52 +74,31 @@ int main(int argc , char *argv[])
 	puts("Connection accepted");
 	
 	//Receive a message from client
-	while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+	while( (read_size = recv(client_sock , clientJob , 2000 , 0)) > 0 )
 	{
-		//Send the message back to client
-		write(client_sock , client_message , strlen(client_message));
+		memmove(clientJob, clientJob + 1, strlen(clientJob)); // remove first character
+		int n = getInt(clientJob); // get int from string
+		Trans(n); // call trans function
+
+		//Once done tell the client that it is done
+		char doneMsg[] = "D";
+		doneMsg[2] = transactionNum; // add transaction number
+		transactionNum++; // increment transactions
+
+		// send "reciept" back to client
+		write(client_sock , doneMsg , strlen(doneMsg));
 	}
 	
 	if(read_size == 0)
 	{
-		puts("Client disconnected");
+		//puts("Client disconnected");
 		fflush(stdout);
 	}
+
 	else if(read_size == -1)
 	{
-		perror("recv failed");
+		//perror("recv failed");
 	}
 	
 	return 0;
 }
-
-/*
-char input[BUFFER_SIZE];
-
-int getInt(char string[JOB_SIZE]) { // function gets number from currjob
-    strncpy(string, string, JOB_SIZE - 1); // remove job type
-    string[JOB_SIZE - 1] = '\0'; // re-append \0
-    int n = atoi(string);
-    return n;
-}
-
-int main(int argc , char *argv[]) {
-    if (argc == 1) { // get port number
-        int portNum = argv[1];
-    } else if (argc == 2) { // get port number and ip to run on
-        int portNum = argv[1];
-        int ipAddr = argv[2];
-    }
-
-    while(fgets(currJob, JOB_SIZE, stdin) != NULL) { // loop until EOF is detected
-        if (strchr(currJob, 'S')) { // if you are to sleep then sleep
-                memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
-                int n = getInt(currJob);
-                Sleep(n); // call sleep function
-            } else if(strchr(currJob, 'T')) { // if new trans job
-                int n = getInt(currJob);
-                Trans(n);
-            }
-    }
-}
-*/

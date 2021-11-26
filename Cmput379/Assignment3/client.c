@@ -12,6 +12,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
+    strncpy(string, string, BUFFER_SIZE - 1); // remove job type
+    string[BUFFER_SIZE - 1] = '\0'; // re-append \0
+    int n = atoi(string);
+    return n;
+}
+
 int main(int argc , char *argv[])
 {
 
@@ -37,7 +44,7 @@ int main(int argc , char *argv[])
 	{
 		printf("Could not create socket");
 	}
-	puts("Socket created");
+	//puts("Socket created");
 	
 	server.sin_addr.s_addr = inet_addr(ipAddr); // changed to connect with given ip
 	server.sin_family = AF_INET;
@@ -50,7 +57,7 @@ int main(int argc , char *argv[])
 		return 1;
 	}
 	
-	puts("Connected\n");
+	//puts("Connected\n");
 	
 	//keep communicating with server
 	char currJob[BUFFER_SIZE];
@@ -63,19 +70,19 @@ int main(int argc , char *argv[])
 			// send the job
 			if( send(sock , currJob , strlen(currJob) , 0) < 0)
 			{
-				puts("Send failed");
+				//puts("Send failed");
 				return 1;
 			}
 			
 			//Receive a reply from the server
 			if( recv(sock , server_reply , 2000 , 0) < 0)
 			{
-				puts("recv failed");
+				//puts("recv failed");
 				break;
 			}
 			
-			puts("Server reply :");
-			puts(server_reply);
+			//puts("Server reply :");
+			//puts(server_reply);
 		}
 	}
 	
