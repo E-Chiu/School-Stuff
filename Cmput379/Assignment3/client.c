@@ -1,4 +1,5 @@
-#DEFINE BUFFER_SIZE 4 // T100 is 4 chars
+#define BUFFER_SIZE 4 // T100 is 4 chars
+#define IP_ADDR_SIZE 15 // ip address is 15 chars
 
 /*
 	C ECHO client example using sockets taken from binarytides.com
@@ -9,19 +10,22 @@
 #include <sys/socket.h>	//socket
 #include <arpa/inet.h>	//inet_addr
 #include <unistd.h>
+#include <stdlib.h>
 
 int main(int argc , char *argv[])
 {
 
-    int portNum = argv[1]; // get portnum from command line
+    int portNum = atoi(argv[1]); // get portnum from command line
 
 	// ensure port number is in the correct range
 	if (portNum < 5000 || portNum > 64000) {
 		printf("Port Number out of Range!");
-		exit();
+		exit(0);
 	}
 
-    char[15] *ipAddr = argv[2]; // get ip address
+    char ipAddr[IP_ADDR_SIZE];
+	strcpy(ipAddr, argv[2]); // get ip address
+	FILE * logFile;
 
 	int sock;
 	struct sockaddr_in server;
@@ -49,27 +53,30 @@ int main(int argc , char *argv[])
 	puts("Connected\n");
 	
 	//keep communicating with server
-	while(1)
-	{
-		printf("Enter message : ");
-		scanf("%s" , message);
-		
-		//Send some data
-		if( send(sock , message , strlen(message) , 0) < 0)
-		{
-			puts("Send failed");
-			return 1;
+	char currJob[BUFFER_SIZE];
+	while(fgets(currJob, BUFFER_SIZE, stdin) != NULL) { // loop until EOF
+		if (strchr(currJob, 'S')) { // if you are to sleep then sleep
+			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
+			int n = getInt(currJob); // get int from string
+			Sleep(n); // call sleep function
+		} else if(strchr(currJob, 'T')) { // if trans job send to server
+			// send the job
+			if( send(sock , currJob , strlen(currJob) , 0) < 0)
+			{
+				puts("Send failed");
+				return 1;
+			}
+			
+			//Receive a reply from the server
+			if( recv(sock , server_reply , 2000 , 0) < 0)
+			{
+				puts("recv failed");
+				break;
+			}
+			
+			puts("Server reply :");
+			puts(server_reply);
 		}
-		
-		//Receive a reply from the server
-		if( recv(sock , server_reply , 2000 , 0) < 0)
-		{
-			puts("recv failed");
-			break;
-		}
-		
-		puts("Server reply :");
-		puts(server_reply);
 	}
 	
 	close(sock);

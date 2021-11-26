@@ -7,17 +7,20 @@
 #include<sys/socket.h>
 #include<arpa/inet.h>	//inet_addr
 #include<unistd.h>	//write
+#include<stdlib.h>
 
 int main(int argc , char *argv[])
 {
-	int transactionNum = 0;
-	int portNum = argv[1]; // get portnum from command line
+	int transactionNum = 1;
+	int portNum = atoi(argv[1]); // get portnum from command line
 
 	// ensure port number is in the correct range
 	if (portNum < 5000 || portNum > 64000) {
 		printf("Port Number out of Range!");
-		exit();
+		exit(0);
 	}
+
+	FILE * logFile;
 
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;
