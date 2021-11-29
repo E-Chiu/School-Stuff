@@ -6,7 +6,7 @@ server: server.o tands.o
 	gcc -o server server.o tands.o 
 
 client: client.o
-	gcc -o client client.o
+	gcc -o client client.o tands.o
 	
 server.o: server.c
 	gcc -c server.c

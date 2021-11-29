@@ -1,15 +1,16 @@
-#define BUFFER_SIZE 4 // T100 is 4 chars
-
 /*
 	C socket server example taken from binarytides.com
 */
 
-#include<stdio.h>
-#include<string.h>	//strlen
-#include<sys/socket.h>
-#include<arpa/inet.h>	//inet_addr
-#include<unistd.h>	//write
-#include<stdlib.h>
+#include <stdio.h>
+#include <string.h>	//strlen
+#include <sys/socket.h>
+#include <arpa/inet.h>	//inet_addr
+#include <unistd.h>	//write
+#include <stdlib.h>
+#include <time.h>
+#include <limits.h>
+#include "header.h"
 
 int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
     strncpy(string, string, BUFFER_SIZE - 1); // remove job type
@@ -29,7 +30,31 @@ int main(int argc , char *argv[])
 		exit(0);
 	}
 
+	// open the log file to write to
 	FILE * logFile;
+
+	char hostname[HOST_NAME_MAX + 1];
+	gethostname(hostname, HOST_NAME_MAX + 1); // get name of machine
+	
+	int pid = getpid();
+	// malloc room for pid as string
+	char * mypid = malloc(6);
+	sprintf(mypid, "%d", pid); // get pid as string
+	 
+	// malloc room for string
+	char *toOpen = malloc(sizeof(hostname) + sizeof(".") + sizeof(mypid));
+
+	strcpy(toOpen, hostname);
+	strcat(toOpen, ".");
+	strcat(toOpen, mypid);
+
+	logFile = fopen(toOpen, "w"); // open logfile in write mode
+
+	// free malloced variables
+	free(toOpen);
+	free(mypid); 
+
+	fprintf(logFile, "Using port %d", portNum); // state what port being
 
 	int socket_desc , client_sock , c , read_size;
 	struct sockaddr_in server , client;

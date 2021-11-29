@@ -1,4 +1,3 @@
-#define BUFFER_SIZE 4 // T100 is 4 chars
 #define IP_ADDR_SIZE 15 // ip address is 15 chars
 
 /*
@@ -11,6 +10,9 @@
 #include <arpa/inet.h>	//inet_addr
 #include <unistd.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <time.h>
+#include "header.h"
 
 int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
     strncpy(string, string, BUFFER_SIZE - 1); // remove job type
@@ -32,7 +34,33 @@ int main(int argc , char *argv[])
 
     char ipAddr[IP_ADDR_SIZE];
 	strcpy(ipAddr, argv[2]); // get ip address
+
+	// open the log file to write to
 	FILE * logFile;
+
+	char hostname[HOST_NAME_MAX + 1];
+	gethostname(hostname, HOST_NAME_MAX + 1); // get name of machine
+
+	int pid = getpid();
+	// malloc room for pid as string
+	char * mypid = malloc(6);
+	sprintf(mypid, "%d", pid); // get pid as string
+	 
+	// malloc room for string
+	char *toOpen = malloc(sizeof(hostname) + sizeof(".") + sizeof(mypid));
+
+	strcpy(toOpen, hostname);
+	strcat(toOpen, ".");
+	strcat(toOpen, mypid);
+
+	logFile = fopen(toOpen, "w"); // open logfile in write mode
+
+	// print port, ip addr, and host used to log
+	fprintf(logFile, "Using port %d\nUsing server address %s\nHost %s", portNum, ipAddr, toOpen);
+
+	// free malloced variables
+	free(toOpen);
+	free(mypid); 
 
 	int sock;
 	struct sockaddr_in server;
@@ -60,31 +88,38 @@ int main(int argc , char *argv[])
 	//puts("Connected\n");
 	
 	//keep communicating with server
+	int transactions = 1;
 	char currJob[BUFFER_SIZE];
 	while(fgets(currJob, BUFFER_SIZE, stdin) != NULL) { // loop until EOF
+		transactions++; // increment transactions
 		if (strchr(currJob, 'S')) { // if you are to sleep then sleep
 			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
 			int n = getInt(currJob); // get int from string
 			Sleep(n); // call sleep function
+			fprintf(logFile, "Sleep %d units", n); // print that you slept
 		} else if(strchr(currJob, 'T')) { // if trans job send to server
+			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
+			int n = getInt(currJob); // get int from string
 			// send the job
 			if( send(sock , currJob , strlen(currJob) , 0) < 0)
 			{
-				//puts("Send failed");
+				puts("Send failed");
 				return 1;
 			}
+
+			fprintf(logFile, "%u.2: Send (T %d)", (unsigned) time(NULL), n); // print that trans was sent
 			
 			//Receive a reply from the server
 			if( recv(sock , server_reply , 2000 , 0) < 0)
 			{
-				//puts("recv failed");
+				puts("recv failed");
 				break;
 			}
 			
-			//puts("Server reply :");
-			//puts(server_reply);
+			fprintf(logFile, "%u.2: Recv (D %d)", (unsigned) time(NULL), n); // print that "reciept" was recieved
 		}
 	}
+	fprintf(logFile, "Sent %d transactions", transactions); // notify how many transactions were done
 	
 	close(sock);
 	return 0;
