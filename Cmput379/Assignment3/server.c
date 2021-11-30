@@ -9,6 +9,7 @@
 #include <unistd.h>	//write
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 #include <limits.h>
 #include "header.h"
 
@@ -98,6 +99,11 @@ int main(int argc , char *argv[])
 	}
 	puts("Connection accepted");
 	
+	// struct to set timeout to be 30s
+	struct timeval timeout;
+	timeout.tv_sec = 30;
+	timeour.tv_usec = 0;
+
 	//Receive a message from client
 	while( (read_size = recv(client_sock , clientJob , 2000 , 0)) > 0 )
 	{
