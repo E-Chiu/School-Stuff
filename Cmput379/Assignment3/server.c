@@ -210,7 +210,8 @@ int main(int argc , char *argv[])
 			for (int i = 0; i < numClients; i++) { // loop through clients printing their stats
 				fprintf(logFile, "   %d Transactions from %s\n", clientList[i].transactions, clientList[i].machineName);
 			}
-			float totalTime = strtod(endTime, &useless) - strtod(startTime, &useless);
+			float thirtySec = 30.00; // used to subtract the 30 seconds witing for select to exit
+			float totalTime = strtod(endTime, &useless) - strtod(startTime, &useless) - thirtySec;
 			float TperS = transactionNum/totalTime;
 			fprintf(logFile, "%.1f transactions/sec (%d/%f)", TperS, transactionNum, totalTime);
 			

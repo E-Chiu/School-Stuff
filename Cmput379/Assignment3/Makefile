@@ -1,6 +1,6 @@
 CFLAGS=-I -W -O.
 
-all: server client
+all: server client manuals
 
 server: tands.o functions.o server.o
 	gcc -o server server.o tands.o functions.o
@@ -20,5 +20,9 @@ tands.o: tands.c
 functions.o: functions.c
 	gcc -c functions.c
 
+manuals: client.1 server.1
+	groff -Tpdf -man client.1 > client.pdf
+	groff -Tpdf -man server.1 > server.pdf
+
 clean:
-	rm *.o server client
+	rm *.o *.pdf server client
