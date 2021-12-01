@@ -4,7 +4,7 @@
 	C ECHO client example using sockets taken from binarytides.com
 */
 #include <time.h>
-#include <stdio.h>	//printf
+#include <stdio.h>
 #include <string.h>	//strlen
 #include <sys/socket.h>	//socket
 #include <arpa/inet.h>	//inet_addr
@@ -14,21 +14,13 @@
 #include <time.h>
 #include "header.h"
 
-int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
-    strncpy(string, string, BUFFER_SIZE - 1); // remove job type
-    string[BUFFER_SIZE - 1] = '\0'; // re-append \0
-    int n = atoi(string);
-    return n;
-}
-
 int main(int argc , char *argv[])
 {
-
     int portNum = atoi(argv[1]); // get portnum from command line
 
 	// ensure port number is in the correct range
 	if (portNum < 5000 || portNum > 64000) {
-		printf("Port Number out of Range!");
+		puts("Port Number out of Range!");
 		exit(0);
 	}
 
@@ -58,10 +50,6 @@ int main(int argc , char *argv[])
 	// print port, ip addr, and host used to log
 	fprintf(logFile, "Using port %d\nUsing server address %s\nHost %s\n", portNum, ipAddr, toOpen);
 
-	// free malloced variables
-	free(toOpen);
-	free(mypid); 
-
 	int sock;
 	struct sockaddr_in server;
 	char message[1000] , server_reply[2000];
@@ -70,7 +58,7 @@ int main(int argc , char *argv[])
 	sock = socket(AF_INET , SOCK_STREAM , 0);
 	if (sock == -1)
 	{
-		printf("Could not create socket");
+		puts("Could not create socket");
 	}
 	//puts("Socket created");
 	
@@ -89,9 +77,11 @@ int main(int argc , char *argv[])
 	
 	//keep communicating with server
 	int transactions = 0;
+	char storeTime[BUFFER_SIZE]; // used to store time
 	char currJob[BUFFER_SIZE];
+	char seperator[] = ".";
 	while(fgets(currJob, BUFFER_SIZE, stdin) != NULL) { // loop until EOF
-		transactions++; // increment transactions
+		currJob[ strcspn(currJob, "\n") ] = '\0'; // remove newline
 		if (strchr(currJob, 'S')) { // if you are to sleep then sleep
 			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
 			int n = getInt(currJob); // get int from string
@@ -103,20 +93,8 @@ int main(int argc , char *argv[])
 			int n = getInt(currJob); // get int from string
 
 			// construct name of the current process to be sent to server
-			char hostname[HOST_NAME_MAX + 1];
-			gethostname(hostname, HOST_NAME_MAX + 1); // get name of machine
-			int pid = getpid();
-			// malloc room for pid as string
-			char * mypid = malloc(PID_SIZE);
-			sprintf(mypid, "%d", pid); // get pid as string
-			// malloc room for string
-			char *fullName = malloc(sizeof(hostname) + sizeof(".") + sizeof(mypid));
-			strcpy(fullName, hostname);
-			strcat(fullName, ".");
-			strcat(fullName, mypid);
-
-			strcat(currJob, "h"); // add h to seperate n and hostname
-			strcat(currJob, fullName); // add the pid to the end of the string
+			strcat(currJob, seperator); // add h to seperate n and hostname
+			strcat(currJob, toOpen); // add the pid to the end of the string
 
 			// send the job
 			if( send(sock , currJob , strlen(currJob) , 0) < 0)
@@ -125,26 +103,26 @@ int main(int argc , char *argv[])
 				return 1;
 			}
 
-			// free vars
-			free(mypid);
-			free(fullName);
+			transactions++; // increment transactions
 
-			fprintf(logFile, "%u.2: Send (T %d)\n", (unsigned) time(NULL), n); // print that trans was sent
+			fprintf(logFile, "%s: Send (T %d)\n", getTime(storeTime), n); // print that trans was sent
 			
 			//Receive a reply from the server
 			if( recv(sock , server_reply , 2000 , 0) < 0)
 			{
-				// puts("recv failed");
+				puts("recv failed");
 				break;
 			}
-			printf("reply accepted");
 			int d = atoi(server_reply);
-			fprintf(logFile, "%u.2: Recv (D %d)\n", (unsigned) time(NULL), d); // print that "reciept" was recieved
-
+			fprintf(logFile, "%s: Recv (D %d)\n", getTime(storeTime), d); // print that "reciept" was recieved
 		}
+		memset(currJob, 0, sizeof(currJob)); // clean string
 	}
 	fprintf(logFile, "Sent %d transactions", transactions); // notify how many transactions were done
 	
+	// free malloced variables
+	free(toOpen);
+	free(mypid); 
 	// close everything and exit
 	fclose(logFile);
 	close(sock);

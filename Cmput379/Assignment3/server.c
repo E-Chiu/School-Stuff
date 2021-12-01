@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <netinet/in.h> 
 #include <limits.h>
 #include "header.h"
 
@@ -17,44 +19,40 @@ struct client
 {
 	int transactions;
 	int pid;
-	char* machineName;
+	char machineName[BUFFER_SIZE];
 };
 
-void incrementClientTransaction(char *fullname, int clientPid, struct client clientList[MAX_CLIENT], int *numClients) { // check if pid already exists in array, if yes find and increment counter, otherwise make new index
-	for (int i = 0; i < *numClients; i++) {
+int incrementClientTransaction(char *fullname, int clientPid, struct client clientList[MAX_CLIENT], int numClients) { // check if pid already exists in array, if yes find and increment counter, otherwise make new index
+	for (int i = 0; i < numClients; i++) {
 		if (clientList[i].pid == clientPid) { // if pid matches one thats already in array increment counter and leave
 			clientList[i].transactions++;
-			return;
+			return numClients;
 		}
 	}
 	
 	// reaching here means that it was not added to existing index so new one must be made and incrememnted
 
-	clientList[*numClients].pid = clientPid;
-	strcpy(clientList[*numClients].machineName, fullname);
-	clientList[*numClients].transactions = 1;
-	*numClients++;
-	return;
-}
-
-int getInt(char string[BUFFER_SIZE]) { // function gets number from currjob
-    strncpy(string, string, BUFFER_SIZE - 1); // remove job type
-    string[BUFFER_SIZE - 1] = '\0'; // re-append \0
-    int n = atoi(string);
-    return n;
+	clientList[numClients].pid = clientPid;
+	strcpy(clientList[numClients].machineName, fullname);
+	clientList[numClients].transactions = 1;
+	numClients++;
+	return numClients;
 }
 
 int main(int argc , char *argv[])
 {
-	float startTime = time(NULL); // to time how long the program runs
+	char startTime[BUFFER_SIZE];
+	char storeTime[BUFFER_SIZE]; // used every time to get time
+	strcpy(startTime, getTime(startTime)); // to time how long the program runs
 	int transactionNum = 0;
 	int portNum = atoi(argv[1]); // get portnum from command line
 	int numClients = 0; // number of clients
 	struct client clientList[MAX_CLIENT]; // array of clients and the transactions each have
+	char * useless; // used for strtod
 
 	// ensure port number is in the correct range
 	if (portNum < 5000 || portNum > 64000) {
-		printf("Port Number out of Range!");
+		puts("Port Number out of Range!");
 		exit(0);
 	}
 
@@ -84,17 +82,21 @@ int main(int argc , char *argv[])
 
 	fprintf(logFile, "Using port %d\n", portNum); // state what port being
 
-	int socket_desc , client_sock , c , read_size;
+	int socket_desc , client_sock[MAX_CLIENT] , read_size;
 	struct sockaddr_in server , client;
 	char clientJob[2000];
 	
+	// initialize client sockets
+	for (int i = 0 ; i < MAX_CLIENT; i++) {
+		client_sock[i] = 0;
+	}
+
 	//Create socket
 	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
 	if (socket_desc == -1)
 	{
-		printf("Could not create socket");
+		puts("Could not create socket");
 	}
-	//puts("Socket created");
 	
 	//Prepare the sockaddr_in structure
 	server.sin_family = AF_INET;
@@ -109,76 +111,115 @@ int main(int argc , char *argv[])
 		return 1;
 	}
 	
-	//Listen
-	listen(socket_desc , 3);
-	
-	//Accept and incoming connection
-	c = sizeof(struct sockaddr_in);
-	
-	//accept connection from an incoming client
-	client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
-	if (client_sock < 0)
-	{
-		perror("accept failed");
-		return 1;
+	//Listen, only 3 clients max at a time
+	if (listen(socket_desc , 3) < 0) {
+		puts("listen failed");
 	}
-	puts("Connection accepted");
-	
-	// struct to set timeout to be 30s
-	struct timeval timeout;
-	timeout.tv_sec = 30;
-	timeout.tv_usec = 0;
 
 	fd_set readfds;
 
-	FD_ZERO(&readfds);
-	FD_SET(socket_desc, &readfds);
-	
-	struct sockaddr_in client_address;
-	socklen_t lenClient;
-	int client_fd;
-
 	while (1) { // loop indefinetley
 
-        lenClient= sizeof(client_address); 
+		// struct to set timeout to be 30s
+		struct timeval timeout;
+		timeout.tv_sec = 30;
+		timeout.tv_usec = 0;
 
-		if (select(socket_desc+1, &readfds, NULL, NULL, &timeout)) { // wait for client to send data
-				
-				int client_fd = accept(socket_desc, (struct sockaddr*) &client_address, &lenClient); // accept connection
+		int max_sd, sd;
+		
+		struct sockaddr_in client_address;
+		int lenClient;
+		int client_fd;
+		lenClient= sizeof(client_address); 
 
-				recv(client_fd , clientJob , 2000 , 0); // recieve message
+		// reset variables
+		FD_ZERO(&readfds);
+		FD_SET(socket_desc, &readfds);
+		max_sd = socket_desc;
 
-				char* token = strtok(clientJob, "h"); // get n from the message
-				int n = atoi(token); // get int from string
-				token = strtok(NULL, "h"); // get name from message
-				char * fullName = token; // save name
-				token = strtok(NULL, ".");
-				token = strtok(NULL, "."); // get pid
-				int clientPid = atoi(token); // get pid from string
-				incrementClientTransaction(fullName, clientPid, clientList, &numClients); // increment counter
+		for (int i = 0; i < MAX_CLIENT; i++) {
+			sd = client_sock[i]; // get socket
 
-				Trans(n); // call trans function
+			if (sd > 0) { // check if sd is open and then add to list
+				FD_SET(sd, &readfds);
+			}
 
-				// Once done tell the client that it is done
-				transactionNum++; // increment transactions
-				char doneMsg[BUFFER_SIZE]; 
-				sprintf(doneMsg, "%d", transactionNum); // add transaction number
-				// send "reciept" back to client
-				write(client_fd , doneMsg , strlen(doneMsg));
-				printf("reciept sent");
+			if (sd > max_sd) { // get sd max
+				max_sd = sd;
+			}
+		}
+
+		if (select(max_sd+1, &readfds, NULL, NULL, &timeout)) { // wait for client to send message
+			if(FD_ISSET(socket_desc, &readfds)) { // get new connection
+
+				if ((client_fd = accept(socket_desc, (struct sockaddr*) &client_address, (socklen_t*)&lenClient)) < 0) { // accept connection
+					puts("accept failed");
+				}
+
+				// add to list
+				for (int i = 0; i < MAX_CLIENT; i++) {
+					if(client_sock[i] == 0) {
+						client_sock[i] = client_fd;
+						break;
+					}
+				}
+			} else { // check existing connections
+				for(int i = 0; i < MAX_CLIENT; i++) {
+					sd = client_sock[i]; // loop
+
+					if(FD_ISSET(sd, &readfds)) {
+						int numb = recv(sd , clientJob , 2000 , 0); // recieve message
+
+						if (numb > 0) {
+							transactionNum++; // increment transactions
+							char* token = strtok(clientJob, "."); // get n from the message
+							int n = atoi(token); // get int from string
+							token = strtok(NULL, "."); // get name from message
+							char machineName[BUFFER_SIZE];
+							strcpy(machineName, token); // save name
+							token = strtok(NULL, "."); // get pid
+							strcat(machineName, ".");
+							strcat(machineName, token);
+							int clientPid = atoi(token); // get pid from string
+							numClients = incrementClientTransaction(machineName, clientPid, clientList, numClients); // increment counter
+
+							fprintf(logFile, "%s: #%3d (T%3d) from %s\n", getTime(storeTime), transactionNum, n, machineName); // print what you are about to do
+							Trans(n); // call trans function
+							fprintf(logFile, "%s: #%3d (Done) from %s\n", getTime(storeTime), transactionNum, machineName); // print that you finished
+
+							// Once done tell the client that it is done
+							char doneMsg[BUFFER_SIZE]; 
+							sprintf(doneMsg, "%d", transactionNum); // add transaction number
+							// send "reciept" back to client
+							write(sd , doneMsg , strlen(doneMsg));
+
+							memset(clientJob, 0, sizeof(clientJob)); // clean string
+						} else if(numb == 0) { // client has shut down
+							close(sd); // end the connection
+							client_sock[i] = 0; // remove from list
+						} else{
+							puts("recv failed");
+						}
+					}
+				}
+			}
 		} else { // if timeout it means server has to close
-			float endTime = time(NULL); // get endtime of program
+			char endTime[BUFFER_SIZE];
+			strcpy(endTime, getTime(endTime)); // get endtime of program
 			fprintf(logFile, "\nSUMMARY\n");
 			for (int i = 0; i < numClients; i++) { // loop through clients printing their stats
 				fprintf(logFile, "   %d Transactions from %s\n", clientList[i].transactions, clientList[i].machineName);
 			}
-			float totalTime = endTime - startTime;
+			float totalTime = strtod(endTime, &useless) - strtod(startTime, &useless);
 			float TperS = transactionNum/totalTime;
-			fprintf(logFile, "%f transactions/sec (%d/%f)", TperS, transactionNum, totalTime);
+			fprintf(logFile, "%.1f transactions/sec (%d/%f)", TperS, transactionNum, totalTime);
 			
 			// close everything and exit
 			close(socket_desc);
-			close(client_sock);
+			for (int i = 0; i < MAX_CLIENT; i++) {
+				close(client_sock[i]);
+			}
+			close(client_fd);
 			fclose(logFile);
 			exit(0);
 		}

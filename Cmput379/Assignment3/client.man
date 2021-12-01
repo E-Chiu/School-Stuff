@@ -1,0 +1,15 @@
+.TH CLIENT 1 "12 Dec 1"
+.SH NAME
+client /- start client
+.SH SYNOPSIS
+/fB./client portNum ipAddr/fP 
+.SH DESCRIPTION
+/fBclient/fP starts a client process that connects to a given port and 
+ip address that interacts with a server process through sockets. Trans
+and Sleep commands can be given by entering a series of /fBTn/fP and /fBSn/fP
+commands respectively, where n is a integer. Upon reading a eof the process
+terminates and a log file is produced.
+.SH "SEE ALSO"
+select(2), recv(2), socket(2), bind(2), connect(2)
+.SH AUTHOR
+echiu

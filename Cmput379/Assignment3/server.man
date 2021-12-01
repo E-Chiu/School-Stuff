@@ -1,0 +1,17 @@
+.TH SERVER 1 "12 Dec 1"
+.SH NAME
+server /- start server
+.SH SYNOPSIS
+/fB./server portNum/fP 
+.SH DESCRIPTION
+/fBserver/fP starts a server process that connects to a given port and waits for
+messages to be sent from client processes. Trans commands are sent from the clients
+and the server process processes them accordingly. The sever process can take messages
+from multiple clients and after 30 seconds of inactivity the server ends.
+.SH BUGS
+The server may sometimes remain longer than 30 seconds, but according to the select()
+man page the timeout is only a rough lower bound
+.SH "SEE ALSO"
+select(2), recv(2), socket(2), bind(2), connect(2)
+.SH AUTHOR
+echiu
