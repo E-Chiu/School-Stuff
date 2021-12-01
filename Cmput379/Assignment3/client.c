@@ -43,7 +43,7 @@ int main(int argc , char *argv[])
 
 	int pid = getpid();
 	// malloc room for pid as string
-	char * mypid = malloc(6);
+	char * mypid = malloc(PID_SIZE);
 	sprintf(mypid, "%d", pid); // get pid as string
 	 
 	// malloc room for string
@@ -56,7 +56,7 @@ int main(int argc , char *argv[])
 	logFile = fopen(toOpen, "w"); // open logfile in write mode
 
 	// print port, ip addr, and host used to log
-	fprintf(logFile, "Using port %d\nUsing server address %s\nHost %s", portNum, ipAddr, toOpen);
+	fprintf(logFile, "Using port %d\nUsing server address %s\nHost %s\n", portNum, ipAddr, toOpen);
 
 	// free malloced variables
 	free(toOpen);
@@ -88,7 +88,7 @@ int main(int argc , char *argv[])
 	//puts("Connected\n");
 	
 	//keep communicating with server
-	int transactions = 1;
+	int transactions = 0;
 	char currJob[BUFFER_SIZE];
 	while(fgets(currJob, BUFFER_SIZE, stdin) != NULL) { // loop until EOF
 		transactions++; // increment transactions
@@ -96,10 +96,28 @@ int main(int argc , char *argv[])
 			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
 			int n = getInt(currJob); // get int from string
 			Sleep(n); // call sleep function
-			fprintf(logFile, "Sleep %d units", n); // print that you slept
+
+			fprintf(logFile, "Sleep %d units\n", n); // print that you slept
 		} else if(strchr(currJob, 'T')) { // if trans job send to server
 			memmove(currJob, currJob + 1, strlen(currJob)); // remove first character
 			int n = getInt(currJob); // get int from string
+
+			// construct name of the current process to be sent to server
+			char hostname[HOST_NAME_MAX + 1];
+			gethostname(hostname, HOST_NAME_MAX + 1); // get name of machine
+			int pid = getpid();
+			// malloc room for pid as string
+			char * mypid = malloc(PID_SIZE);
+			sprintf(mypid, "%d", pid); // get pid as string
+			// malloc room for string
+			char *fullName = malloc(sizeof(hostname) + sizeof(".") + sizeof(mypid));
+			strcpy(fullName, hostname);
+			strcat(fullName, ".");
+			strcat(fullName, mypid);
+
+			strcat(currJob, "h"); // add h to seperate n and hostname
+			strcat(currJob, fullName); // add the pid to the end of the string
+
 			// send the job
 			if( send(sock , currJob , strlen(currJob) , 0) < 0)
 			{
@@ -107,20 +125,28 @@ int main(int argc , char *argv[])
 				return 1;
 			}
 
-			fprintf(logFile, "%u.2: Send (T %d)", (unsigned) time(NULL), n); // print that trans was sent
+			// free vars
+			free(mypid);
+			free(fullName);
+
+			fprintf(logFile, "%u.2: Send (T %d)\n", (unsigned) time(NULL), n); // print that trans was sent
 			
 			//Receive a reply from the server
 			if( recv(sock , server_reply , 2000 , 0) < 0)
 			{
-				puts("recv failed");
+				// puts("recv failed");
 				break;
 			}
-			
-			fprintf(logFile, "%u.2: Recv (D %d)", (unsigned) time(NULL), n); // print that "reciept" was recieved
+			printf("reply accepted");
+			int d = atoi(server_reply);
+			fprintf(logFile, "%u.2: Recv (D %d)\n", (unsigned) time(NULL), d); // print that "reciept" was recieved
+
 		}
 	}
 	fprintf(logFile, "Sent %d transactions", transactions); // notify how many transactions were done
 	
+	// close everything and exit
+	fclose(logFile);
 	close(sock);
 	return 0;
 }
