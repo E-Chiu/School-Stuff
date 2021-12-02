@@ -43,7 +43,7 @@ int main(int argc , char *argv[])
 {
 	char startTime[BUFFER_SIZE];
 	char storeTime[BUFFER_SIZE]; // used every time to get time
-	strcpy(startTime, getTime(startTime)); // to time how long the program runs
+	int firstTime = 1; // first time exiting the select
 	int transactionNum = 0;
 	int portNum = atoi(argv[1]); // get portnum from command line
 	int numClients = 0; // number of clients
@@ -150,6 +150,11 @@ int main(int argc , char *argv[])
 		}
 
 		if (select(max_sd+1, &readfds, NULL, NULL, &timeout)) { // wait for client to send message
+			if (firstTime) {
+				strcpy(startTime, getTime(startTime)); // to time how long the program runs
+				firstTime = 0;
+			}
+
 			if(FD_ISSET(socket_desc, &readfds)) { // get new connection
 
 				if ((client_fd = accept(socket_desc, (struct sockaddr*) &client_address, (socklen_t*)&lenClient)) < 0) { // accept connection
