@@ -1,0 +1,40 @@
+1.
+NOR: (Lxy|xx(yy))(Lx|xy)(Lx|x)
+=> (Lx|xy)(Lx|xy)((Lx|x)(Lx|x))
+=> (Lx|xy)y((Lx|x)(Lx|x))
+=> yy((Lx|x)(Lx|x))
+=> yy(Lx|x)
+
+AOR: (Lxy|xx(yy))(Lx|xy)(Lx|x)
+=> (Lxy|xx(yy))(Lx|x)y
+=> (Lx|x)(Lx|x)(yy)
+=> (Lx|x)(yy)
+=> (yy)
+
+2.
+a)
+IMP = (Lxy|OR(NOTx)y)
+=> (Lxy|(Lxy|xTy)(NOTx)y)
+=> (Lxy|((Lx|xFT)x)Ty)
+=> (Lxy|(xFT)Ty)
+
+b)
+IMP TF
+=> (Lxy|(xFT)Ty)TF
+=> (TFT)TF
+=> FTF
+=> F
+
+IMP FT
+=> (Lxy|(xFT)Ty)FT
+=> (FFT)TT
+=> TTT
+=>T
+
+3.
+a)
+(((lambda (x y) (lambda (z) (if (> x y) (+ x z) (+ x y)))) 4 5) 10)
+((lambda (z) (if (> 4 5) (+ 4 z) (+ 4 5))) 10)
+(if (> 4 5) (+ 4 10) (+ 4 5))
+(if T 14 9)
+9
