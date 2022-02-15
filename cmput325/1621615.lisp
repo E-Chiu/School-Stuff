@@ -23,16 +23,18 @@
                 ((eq f 'and) (and (fl-interp (car arg) P) (fl-interp (cadr arg) P)))
                 ((eq f 'or) (or (fl-interp (car arg) P) (fl-interp (cadr arg) P)))
                 ((eq f 'not) (not (fl-interp (car arg) P)))
-                (t E)
-          )
-
-	        ; if f is a user-defined function,
+                ((not (null f)) ())
+                ; if f is a user-defined function,
                 ;    then evaluate the arguments 
                 ;         and apply f to the evaluated arguments 
                 ;             (applicative order reduction) 
 
                 ; otherwise f is undefined (not intended to be a function),
                 ; the E is returned, as if it is quoted in lisp 
+
+
+                (t E)
+          )
            )
         )
   )
