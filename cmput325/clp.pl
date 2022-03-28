@@ -35,7 +35,7 @@ query1(Semester, Name, Total) :-
 
 % b)
 query2(Semester, L) :-
-    findall([Name], q2cond(Name, Semester), L).
+    findall(Name, q2cond(Name, Semester), L).
 
 q2cond(Name, Semester) :-
     c325(Semester, Name, _, _, _, _, MG, FG),
