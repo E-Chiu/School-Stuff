@@ -1,3 +1,5 @@
+# testing machine has AMD 3600x, 16 gb 3600mhz cl16 ram
+
 #const steps=13.
 
 car(car1).

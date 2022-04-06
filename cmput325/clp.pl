@@ -246,6 +246,12 @@ assign_const(H, [H1|L]) :- % assign constraint to every other element
     assign_const(H, L).
 
 % q5 -------------------------------------------------
+/*
+
+I am pretty confident my constraints are all correct, I think it has something to do with the way I implemented the lists
+
+*/
+
 paper(1,lily,xxx,ai).
 paper(2,peter,john,database).
 paper(3,ann,xxx,theory).
@@ -276,20 +282,22 @@ assign(W1, W2) :-
     findall(Id, paper(Id, _, _, _), L),
     findall(Name, reviewer(Name, _, _),  L2),
     makeGrid(L, L2, G), % grid is paper by reviewer
-    % append(G, Bools), why doesnt this work? tried to copy sudoku
-    % Bools ins 0..1,
-    G ins 0..1,
-    constraint1(G, L2, 0),
-    constraint2(G, L2, 0),
+    append(G, Bools), % why doesnt this work? tried to copy sudoku
+    Bools ins 0..1,
+    constraint1(G, L2, 1),
+    print(1),   
+    constraint2(G, L2, 1),
+    print(2),
     constraint3(G),
     transpose(G, G1),
     constraint4(G1),
-    makeLists(G, W1, W2, L2),
-    maplist(labeling([ff]), G).
+    label(Bools),
+    makeLists(G, W1, W2, L2).
 
 makeGrid(L, L2, G) :- 
     length(L, N),
     length(L2, N1),
+    length(G, N),
     makeGridHelper(N, N1, G).
 
 makeGridHelper(0, _, _).
@@ -303,16 +311,13 @@ constraint1([Col|G], Reviewers, N) :-
     constraint1Helper(Col, Reviewers, N), !,
     N1 is N + 1,
     constraint1(G, Reviewers, N1).
-constraint1([_|G], Reviewers, N) :- % idk if this is needed
-    N1 is N + 1,
-    constraint1(G, Reviewers, N1).
 
 constraint1Helper([], _, _).
 constraint1Helper([H|Col], [R|Reviewers], N) :- % if cell is 1 means they are reviewer, make sure not same as writer
-    H #= 1, !,
     paper(N, W1, W2, _),
-    R \= W1,
-    R \= W2,
+    Temp = [W1, W2],
+    member(R, Temp), !,
+    H #= 0,
     constraint1Helper(Col, Reviewers, N).
 constraint1Helper([_|Col], [_|Reviewers], N) :-
     constraint1Helper(Col, Reviewers, N).
@@ -322,25 +327,21 @@ constraint2([Col|G], Reviewers, N) :-
     constraint2Helper(Col, Reviewers, N), !,
     N1 is N + 1,
     constraint2(G, Reviewers, N1).
-constraint2([_|G], Reviewers, N) :- % idk if this is needed
-    N1 is N + 1,
-    constraint2(G, Reviewers, N1).
 
-constraint2Helper([], _).
+constraint2Helper([], _, _).
 constraint2Helper([H|Col], [R|Reviewers], N) :- % make sure topic of paper is one of reviewers specialties
-    H #= 1, !,
     paper(N, _, _, T),
     reviewer(R, S1, S2),
     Temp = [S1, S2],
-    member(T, Temp),
+    \+ member(T, Temp), !,
+    H #= 0,
     constraint2Helper(Col, Reviewers, N).
 constraint2Helper([_|Col], [_|Reviewers], N) :-
     constraint2Helper(Col, Reviewers, N).
 
 constraint3([]).
 constraint3([Col|Cols]) :- % if sum of cols is 2 means only 2 reviewers
-    sum_list(Col, S),
-    S = 2,
+    sum(Col, #=, 2),
     constraint3(Cols).
 
 constraint4([]).
