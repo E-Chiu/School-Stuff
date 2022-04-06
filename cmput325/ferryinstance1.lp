@@ -18,7 +18,7 @@ at(car4,c,0).
 at(ferry,a,0).
 
 goal(T):-
-at(car1,b,T),
-at(car2,c,T),
-at(car3,b,T),
+at(car1,c,T),
+at(car2,b,T),
+at(car3,c,T),
 at(car4,a,T).

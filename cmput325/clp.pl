@@ -1,4 +1,14 @@
-% solution for question 1
+/*
+1 done
+2 done prob
+3 done prob
+4 done
+5 need to ask
+6 done
+7 need to ask
+*/
+
+% q1 -------------------------------------------------
 
 insert_data :-
     assert(c325(fall_2021,aperf,15,15,15,15,75,50)),
@@ -84,7 +94,7 @@ example 2:
 4 cannot be removed from the domain since it does not show up anywhere else
 */
 
-% q3
+% q3 -------------------------------------------------
 
 :- use_module(library(clpfd)).
 
@@ -108,22 +118,23 @@ encrypt(W1,W2,W3) :-
  
     !,                      % never need to redo the above
  
-    Letters ins 0..9, 
-    all_different(Letters),
-    total(W1, T1, N),
-    total(W2, T2, N),
-    total(W3, T3, N1),
+    Letters ins 0..9,
+    all_distinct(Letters),
+    getTotal(W1, T1, N),
+    getTotal(W2, T2, N),
+    getTotal(W3, T3, N1),
     T1 + T2 #= T3,
     LeadLetter1 #\= 0, LeadLetter2 #\= 0, LeadLetter3 #\= 0,
     label(Letters).
 
-total([], _, 0).
-total([W|Word], Total1, Len) :-
-    Len1 = Len - 1,
-    total(Word, Total, Len1),
-    Total1 = W * (10 ** Len1) + Total.
+getTotal([], 0, 0).
+getTotal([W|Word], Total, Len) :-
+    Len1 is Len - 1,
+    getTotal(Word, Total1, Len1),
+    Temp is 10 ** Len1,
+    Total = W * Temp + Total1.
 
-% q4
+% q4 -------------------------------------------------
 
 /* 
 The goal of Sudoku is to fill in a 9 by 9 grid with digits 
@@ -196,7 +207,7 @@ grid(N, Rows) :-
     gridHelper(N, N, Rows).
 
 gridHelper(0, _, _).
-gridHelper(N, Size, [Row|Rows]):-
+gridHelper(N, Size, [Row|Rows]):- % call length to make an empty list every time
     length(Row, Size),
     N1 is N - 1,
     gridHelper(N1, Size, Rows).
@@ -208,31 +219,33 @@ xtranspose(Rows, [Col|Cols]) :-
     xtranspose(Rows1, Cols).
 
 xtransposeHelper([], _).
-xtransposeHelper([[Head|Row]|Rows], [Head|Col]) :-
+xtransposeHelper([[Head|_]|Rows], [Head|Col]) :- % do transposition
     xtransposeHelper(Rows, Col).
 
 removeHead([], []).
-removeHead([[_|_]|Rows], [_|Rows1]) :-
+removeHead([[_|_]|Rows], [_|Rows1]) :- % remove all the heads since they have been transposed
     removeHead(Rows, Rows1), !.
 
 xall-distinct([]).
-xall-distinct([_]).
-xall-distinct([H|L]) :-
-    \+ number(H), !,
+xall-distinct([Row|Rows]) :-
+    xall-distinctHelper(Row),
+    xall-distinct(Rows).
+
+xall-distinctHelper([]).
+xall-distinctHelper([_]).
+xall-distinctHelper([H|L]) :-
+    %\+ number(H), !, % dont think this is needed
     assign_const(H, L),
-    xall-distinct(L).
-xall-distinct([_|L]) :-
-    xall-distinct(L).
+    xall-distinctHelper(L).
+xall-distinctHelper([_|L]) :-
+    xall-distinctHelper(L).
 
 assign_const(_, []).
-assign_const(H, [H1|L]) :-
-    \+ number(H), !,
+assign_const(H, [H1|L]) :- % assign constraint to every other element
     H #\= H1,
     assign_const(H, L).
-assign_const(H, [_|L]) :-
-    assign_const(H,L).
 
-%q5
+% q5 -------------------------------------------------
 paper(1,lily,xxx,ai).
 paper(2,peter,john,database).
 paper(3,ann,xxx,theory).
@@ -250,43 +263,6 @@ reviewer(jim,theory,games).
 
 workLoadAtMost(2).
 
-assign(W1F, W2F) :-
-    assignHelper(W1, W2, 1),
-    constraint4(W1, W2, W1F, W2F).
-
-assignHelper(W1, W2, N) :-
-    N1 is N + 1,
-    constraint1(R1, R2, N),
-    constraint2(R1, R2, N),
-    constraint3(), % constraint 3 should be fulfilled with 1
-    constraint4(),
-    assign([R1|W1], [R2|W2], N1).
-
-constraint1(R1, R2, N) :-
-    paper(N, W1, W2, _),
-    reviewer(R1, _, _),
-    reviewer(R1, _, _),
-    R1 #\= R2,
-    R1 #\= W1,
-    R1 #\= W2,
-    R2 #\= W1,
-    R2 #\= W2.
-
-constraint2(R1, R2, N) :-
-    paper(N, _, _, Topic),
-    reviewer(R1, T1, T2),
-    reviewer(R2, T3, T4),
-    Topic #= T1,
-    Topic #= T2,
-    Topic #= T3,
-    Topic #= T4.
-
-constraint3().
-
-constraint4(W1, W2, W1F, W2F).
-
-
-
 /*
 What we want is a paper review assignment satisfying
 
@@ -295,3 +271,97 @@ What we want is a paper review assignment satisfying
 (3) Each paper is assigned to 2 reviewers; and
 (4) No reviewer is assigned more than k papers, where k will be given as a fact: workLoadAtMost(k).
 */
+
+assign(W1, W2) :-
+    findall(Id, paper(Id, _, _, _), L),
+    findall(Name, reviewer(Name, _, _),  L2),
+    makeGrid(L, L2, G), % grid is paper by reviewer
+    % append(G, Bools), why doesnt this work? tried to copy sudoku
+    % Bools ins 0..1,
+    G ins 0..1,
+    constraint1(G, L2, 0),
+    constraint2(G, L2, 0),
+    constraint3(G),
+    transpose(G, G1),
+    constraint4(G1),
+    makeLists(G, W1, W2, L2),
+    maplist(labeling([ff]), G).
+
+makeGrid(L, L2, G) :- 
+    length(L, N),
+    length(L2, N1),
+    makeGridHelper(N, N1, G).
+
+makeGridHelper(0, _, _).
+makeGridHelper(N, N1, [Row|G]) :- % call length to make empty grid of papers by reviewers
+    length(Row, N1),
+    N2 is N - 1,
+    makeGridHelper(N2, N1, G).
+
+constraint1([], _, _).
+constraint1([Col|G], Reviewers, N) :-
+    constraint1Helper(Col, Reviewers, N), !,
+    N1 is N + 1,
+    constraint1(G, Reviewers, N1).
+constraint1([_|G], Reviewers, N) :- % idk if this is needed
+    N1 is N + 1,
+    constraint1(G, Reviewers, N1).
+
+constraint1Helper([], _, _).
+constraint1Helper([H|Col], [R|Reviewers], N) :- % if cell is 1 means they are reviewer, make sure not same as writer
+    H #= 1, !,
+    paper(N, W1, W2, _),
+    R \= W1,
+    R \= W2,
+    constraint1Helper(Col, Reviewers, N).
+constraint1Helper([_|Col], [_|Reviewers], N) :-
+    constraint1Helper(Col, Reviewers, N).
+
+constraint2([], _, _).
+constraint2([Col|G], Reviewers, N) :-
+    constraint2Helper(Col, Reviewers, N), !,
+    N1 is N + 1,
+    constraint2(G, Reviewers, N1).
+constraint2([_|G], Reviewers, N) :- % idk if this is needed
+    N1 is N + 1,
+    constraint2(G, Reviewers, N1).
+
+constraint2Helper([], _).
+constraint2Helper([H|Col], [R|Reviewers], N) :- % make sure topic of paper is one of reviewers specialties
+    H #= 1, !,
+    paper(N, _, _, T),
+    reviewer(R, S1, S2),
+    Temp = [S1, S2],
+    member(T, Temp),
+    constraint2Helper(Col, Reviewers, N).
+constraint2Helper([_|Col], [_|Reviewers], N) :-
+    constraint2Helper(Col, Reviewers, N).
+
+constraint3([]).
+constraint3([Col|Cols]) :- % if sum of cols is 2 means only 2 reviewers
+    sum_list(Col, S),
+    S = 2,
+    constraint3(Cols).
+
+constraint4([]).
+constraint4([Row|Rows]) :- % if sum of rows is K means only K papers per reviewer
+    workLoadAtMost(K),
+    sum(Row, #<, K),
+    constraint4(Rows).
+
+makeLists([], [], []).
+makeLists([Col|Cols], [R1|W1], [R2|W2], Reviewers) :-
+    makeListsHelper(Col, R1, R2, Reviewers, 2),
+    makeLists(Cols, W1, W2, Reviewers).
+
+makeListsHelper(_, _, _, _, 0).
+makeListsHelper([H|Col], R1, R2, [R|Reviewers], 2) :- % if cell is 1 they are a reviwer, then find other one
+    H = 1, !,
+    R1 is R,
+    makeListsHelper(Col, R1, R2, [Reviewers], 1).
+makeListsHelper([H|Col], R1, R2, [R|Reviewers], 1) :-
+    H = 1, !,
+    R2 is R,
+    makeListsHelper(Col, R1, R2, Reviewers, 0).
+makeListsHelper([_|Col], R1, R2, [_|Reviewers], A) :-
+    makeListsHelper(Col, R1, R2, Reviewers, A).
