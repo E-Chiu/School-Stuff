@@ -285,12 +285,14 @@ assign(W1, W2) :-
     append(G, Bools), % why doesnt this work? tried to copy sudoku
     Bools ins 0..1,
     constraint1(G, L2, 1),
-    print(1),   
+    write('1 passed\n'),   
     constraint2(G, L2, 1),
-    print(2),
+    write('2 passed\n'),
     constraint3(G),
+    write('3 passed\n'),
     transpose(G, G1),
     constraint4(G1),
+    write('4 passed\n'),
     label(Bools),
     makeLists(G, W1, W2, L2).
 
@@ -345,24 +347,22 @@ constraint3([Col|Cols]) :- % if sum of cols is 2 means only 2 reviewers
     constraint3(Cols).
 
 constraint4([]).
-constraint4([Row|Rows]) :- % if sum of rows is K means only K papers per reviewer
+constraint4([Row|Rows]) :- % if sum of rows is < K means up to K papers per reviewer
     workLoadAtMost(K),
-    sum(Row, #<, K),
+    sum(Row, #=<, 2),
     constraint4(Rows).
 
-makeLists([], [], []).
+makeLists([], [], [], _).
 makeLists([Col|Cols], [R1|W1], [R2|W2], Reviewers) :-
     makeListsHelper(Col, R1, R2, Reviewers, 2),
     makeLists(Cols, W1, W2, Reviewers).
 
 makeListsHelper(_, _, _, _, 0).
-makeListsHelper([H|Col], R1, R2, [R|Reviewers], 2) :- % if cell is 1 they are a reviwer, then find other one
+makeListsHelper([H|Col], R, R2, [R|Reviewers], 2) :- % if cell is 1 they are a reviwer, then find other one
     H = 1, !,
-    R1 is R,
-    makeListsHelper(Col, R1, R2, [Reviewers], 1).
-makeListsHelper([H|Col], R1, R2, [R|Reviewers], 1) :-
+    makeListsHelper(Col, R, R2, Reviewers, 1).
+makeListsHelper([H|Col], R1, R, [R|Reviewers], 1) :-
     H = 1, !,
-    R2 is R,
-    makeListsHelper(Col, R1, R2, Reviewers, 0).
+    makeListsHelper(Col, R1, R, Reviewers, 0).
 makeListsHelper([_|Col], R1, R2, [_|Reviewers], A) :-
     makeListsHelper(Col, R1, R2, Reviewers, A).
