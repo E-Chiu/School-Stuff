@@ -1,13 +1,3 @@
-/*
-1 done
-2 done prob
-3 done prob
-4 done
-5 need to ask
-6 done
-7 need to ask
-*/
-
 % q1 -------------------------------------------------
 
 insert_data :-
@@ -246,11 +236,6 @@ assign_const(H, [H1|L]) :- % assign constraint to every other element
     assign_const(H, L).
 
 % q5 -------------------------------------------------
-/*
-
-I am pretty confident my constraints are all correct, I think it has something to do with the way I implemented the lists
-
-*/
 
 paper(1,lily,xxx,ai).
 paper(2,peter,john,database).
@@ -285,14 +270,14 @@ assign(W1, W2) :-
     append(G, Bools), % why doesnt this work? tried to copy sudoku
     Bools ins 0..1,
     constraint1(G, L2, 1),
-    write('1 passed\n'),   
+    %write('1 passed\n'),   
     constraint2(G, L2, 1),
-    write('2 passed\n'),
+    %write('2 passed\n'),
     constraint3(G),
-    write('3 passed\n'),
+    %write('3 passed\n'),
     transpose(G, G1),
     constraint4(G1),
-    write('4 passed\n'),
+    %write('4 passed\n'),
     label(Bools),
     makeLists(G, W1, W2, L2).
 
