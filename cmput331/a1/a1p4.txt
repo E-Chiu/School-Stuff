@@ -1,0 +1,5 @@
+4a. The original ceasar cypher code presented can have an infinite number of keys, since it uses the number to shift each letter, though any number > 26 becomes redundant. a1p1 and a1p2 can have a total of 52 keys, one for every letter of the alphabet, upper and lower. a1p3 can have an infinite number of keys.
+
+4b. Yes, the cipher in a1p2 is stronger than the original Caesar cipher. Once the shift of the original cipher is found it would be trivial to shift everything else back. With the cipher in part 2 you would have to first come to the conclusion that the shift is done with the previous letter that was encrypted, and also figure out the Letters string that corresponds to the shift amount.
+
+4c. If the string of LETTERS are paired in uppercase/lowercase letters (ie. "AaBbCc") then an attacker has "twice" the chance of figuring out the key by performing a frequency analysis of the letters since each letter capital or not will correspond to a shift of n plus or minus 1. A possible way this could be addressed is by breaking the pairing of letters (ie. "abCAcB") leading to further scrambling and additional work in figuring out the shift dictionary.
