@@ -102,5 +102,6 @@ def test():
     SHIFTDICT, LETTERDICT = get_map()
     assert decrypt(encrypt("foo", "g"), "g") == "foo"
 
+
 if __name__ == "__main__" and not flags.interactive:
     test()

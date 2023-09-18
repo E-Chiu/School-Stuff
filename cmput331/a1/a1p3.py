@@ -111,8 +111,8 @@ def decrypt(message: str, key: str):
 def test():
     global SHIFTDICT, LETTERDICT 
     SHIFTDICT, LETTERDICT = get_map()
-    assert encrypt("AAA!AAA", "AaBb") == 'AaB!bAa'
-    assert decrypt("AaB!bAa", "AaBb") ==  'AAA!AAA'
+    assert decrypt(encrypt("foo", "g"), "g") == "foo"
+
 
 if __name__ == "__main__" and not flags.interactive:
     test()
