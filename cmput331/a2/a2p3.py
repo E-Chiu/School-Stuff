@@ -39,33 +39,43 @@ Author: Ethan Chiu
 from typing import List
 
 def decryptMessage(key: List[int], message: str):
-    # create an empty 2d array to map the correct placements of the letters
-    mappingArr = [[] for i in range(len(message))]
-    for i in range(len(message)):
-        for j in range(key):
-            mappingArr[i] += '_'
+    mappingArr = [[] for i in range(len(key))]
 
-    # go up and down the string and place the the X where a letter should be for future reference
-    direction = 1
+    # add Xs to spots where letters would have been
     row = 0
-    for i in range(len(message)):
-        mappingArr[i][row] = 'X'
+    for index in range(len(message)):
+        mappingArr[row] += 'X'
+        row += 1
+        if row == len(key):
+            row = 0
 
-        row += direction
-        if row == 0 or row == key - 1:
-            direction *= -1
-    
-    # loop over the encryped message and replace X's with letters
-    letterIndex = 0
-    for row in range(key):
-        for col in range(len(message)):
-            if mappingArr[col][row] == 'X':
-                mappingArr[col][row] = message[letterIndex]
-                letterIndex += 1
-    
-    return 1
+    # order the array based off the key
+    decryptArr = []
+    for col in range(len(key)):
+        decryptArr.append(mappingArr[key[col] - 1])
+
+    # loop through the message place the letters into their columns
+    index = 0
+    for col in range(len(key)):
+        for row in range(len(mappingArr[col])):
+            mappingArr[col][row] = message[index]
+            index += 1
+
+    decryptedMessage = ''
+    # put the decrypted string back together
+    col = 0
+    row = 0
+    for index in range(len(message)):
+        decryptedMessage += decryptArr[col][row]
+        col += 1
+        if col == len(decryptArr):
+            col = 0
+            row += 1
+        
+    return decryptedMessage
 
 def test():
+    assert decryptMessage([1, 3, 2], "ADGCFBE") == "ABCDEFG"
     assert decryptMessage([2, 4, 1, 5, 3], "IS HAUCREERNP F") == "CIPHERS ARE FUN"
 
 from sys import flags
