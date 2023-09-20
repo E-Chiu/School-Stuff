@@ -4,7 +4,7 @@
 #
 # CMPUT 331 Student Submission License
 # Version 1.0
-# Copyright 2023 <<Insert your name here>>
+# Copyright 2023 <Ethan Chiu>
 #
 # Redistribution is forbidden in all circumstances. Use of this software
 # without explicit authorization from the author is prohibited.
@@ -33,15 +33,29 @@
 """
 CMPUT 331 Assignment 2 Student Solution
 September 2023
-Author: <Your name here>
+Author: Ethan Chiu
 """
 
 from typing import List
 
 def encryptMessage(key: List[int], message: str):
-    raise NotImplementedError()
+    encryptedArr = [''] * len(key)
+
+    row = 0
+    for index in range(len(message)):
+        encryptedArr[row] += message[index]
+        row += 1
+        if row == len(key):
+            row = 0
+    
+    output = ''
+    for col in key:
+        output += encryptedArr[col - 1]
+    return output
+
 
 def test():
+    print(encryptMessage([2, 4, 1, 5, 3], "CIPHERS ARE FUN"))
     assert encryptMessage([2, 4, 1, 5, 3], "CIPHERS ARE FUN") == "IS HAUCREERNP F"
     assert encryptMessage([1, 3, 2], "ABCDEFG") == "ADGCFBE"
     assert encryptMessage([2, 1], "HELLO WORLD") == "EL OLHLOWRD"

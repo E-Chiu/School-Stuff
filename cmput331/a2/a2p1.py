@@ -4,7 +4,7 @@
 #
 # CMPUT 331 Student Submission License
 # Version 1.0
-# Copyright 2023 <<Insert your name here>>
+# Copyright 2023 <EthanChiu>
 #
 # Redistribution is forbidden in all circumstances. Use of this software
 # without explicit authorization from the author is prohibited.
@@ -33,32 +33,67 @@
 """
 CMPUT 331 Assignment 2 Student Solution
 September 2023
-Author: <Your name here>
+Author: Ethan Chiu
 """
+
+import math
 
 def encryptMessage(key: int, message: str):
     encryptedArr = [''] * key
 
-    # split split the string in a loop into 3 different substrings then combine them at the end
-    for col in range(key):
-        for letter in range(col, len(message), key):
-            encryptedArr[col] += message[letter];
-    return ''.join(encryptedArr)
+    # go up and down the string and place the the letters in their respective column
+    index = 0
+    while True:
+        for col in range(key):
+            if index >= len(message):
+                return ''.join(encryptedArr)
+            encryptedArr[col] += message[index]
+            index += 1
+        for col in range(key - 2, 0, -1):
+            if index >= len(message):
+                return ''.join(encryptedArr)
+            encryptedArr[col] += message[index]
+            index += 1
 
 
 def decryptMessage(key: int, message: str):
-    decryptedArr = []
+    # create an empty 2d array to map the correct placements of the letters
+    mappingArr = [[] for i in range(len(message))]
+    for i in range(len(message)):
+        for j in range(key):
+            mappingArr[i] += '_'
 
-    # split split the string in a loop into 3 different substrings then combine them at the end
-    decryptedArr.append(message[0])
-    for i in range(1, len(message)):
-        index = (len(message) - 1) % (i * key)
-        decryptedArr.append(message[index])
-    return ''.join(decryptedArr)
+    # go up and down the string and place the the X where a letter should be for future reference
+    direction = 1
+    row = 0
+    for i in range(len(message)):
+        mappingArr[i][row] = 'X'
+
+        row += direction
+        if row == 0 or row == key - 1:
+            direction *= -1
+    
+    # loop over the encryped message and replace X's with letters
+    letterIndex = 0
+    for row in range(key):
+        for col in range(len(message)):
+            if mappingArr[col][row] == 'X':
+                mappingArr[col][row] = message[letterIndex]
+                letterIndex += 1
+    
+    # loop one last time and put it all together
+    finalMessage = ''
+    direction = 1
+    row = 0
+    for i in range(len(message)):
+        finalMessage += mappingArr[i][row]
+
+        row += direction
+        if row == 0 or row == key - 1:
+            direction *= -1
+    return finalMessage
 
 def test():
-    print(encryptMessage(2, "SECRET"))
-    print(decryptMessage(2, "SCEERT"))
     assert decryptMessage(2, encryptMessage(2, "SECRET")) == "SECRET"
     assert decryptMessage(3, encryptMessage(3, "CIPHERS ARE FUN")) == "CIPHERS ARE FUN"
     assert decryptMessage(4, encryptMessage(4, "HELLO WORLD")) == "HELLO WORLD"
