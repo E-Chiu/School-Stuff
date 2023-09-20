@@ -76,8 +76,20 @@ def decryptMessage(key: List[int], message: str):
         
     return decryptedMessage
 
+def decryptMystery():
+    # open the encrypted file
+    mystery = open("mystery.txt", "r", -1, "UTF-8")
+    plaintext = decryptMessage([8,1,6,2,10,4,5,3,7,9], mystery.read())
+    mystery.close()
+
+    # write plaintext to new file
+    decrypted = open("mystery.dec.txt", "w")
+    decrypted.write(plaintext)
+    decrypted.close()
+    return plaintext
+
 def test():
-    assert decryptMessage([2, 4, 1, 5, 3], "IS HAUCREERNP F") == "CIPHERS ARE FUN"
+    assert decryptMessage([1, 3, 2], "ADGCFBE") == "ABCDEFG"
 
 from sys import flags
 
