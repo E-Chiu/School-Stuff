@@ -3,6 +3,8 @@ from search.algorithms import State
 from search.map import Map
 import getopt
 import sys
+from dijkstrasAlg import dijkstras
+from aStarAlg import aStar
 
 def main():
     """
@@ -49,7 +51,7 @@ def main():
         goal = goal_states[i]
     
         time_start = time.time()
-        cost, expanded_diskstra = None, None # replace None, None with the call to your Dijkstra's implementation
+        cost, expanded_diskstra = dijkstras(start, goal, gridded_map) # replace None, None with the call to your Dijkstra's implementation
         time_end = time.time()
         nodes_expanded_dijkstra.append(expanded_diskstra)
         time_dijkstra.append(time_end - time_start)
@@ -66,7 +68,7 @@ def main():
         goal = goal_states[i]
     
         time_start = time.time()
-        cost, expanded_astar = None, None # replace None, None with the call to your A* implementation
+        cost, expanded_astar = aStar(start, goal, gridded_map) # replace None, None with the call to your A* implementation
         time_end = time.time()
 
         nodes_expanded_astar.append(expanded_astar)
