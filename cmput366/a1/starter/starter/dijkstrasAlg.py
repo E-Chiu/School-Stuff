@@ -11,10 +11,10 @@ def dijkstras(si: State, sg: State, T: Map):
     closedList = {}
 
     # add initial node
-    si.set_cost = 0;
+    si.set_cost = 0
     heapq.heappush(openList, si)
 
-    closedList[si.state_hash()] = si.get_cost()
+    closedList[si.state_hash()] = si
     
     while len(openList) > 0:
         currNode = heapq.heappop(openList)
@@ -27,12 +27,13 @@ def dijkstras(si: State, sg: State, T: Map):
                 # add the node to closed and open lists
                 childNode.set_cost(currNode.get_g() + (childNode.get_g() - currNode.get_cost()))
                 heapq.heappush(openList, childNode)
-                closedList[childNode.state_hash()] = childNode.get_cost()
-            if childNode.state_hash() in closedList and (currNode.get_g() + (childNode.get_g() - currNode.get_cost())) < closedList[currNode.state_hash()]:
+                closedList[childNode.state_hash()] = childNode
+            if childNode.state_hash() in closedList and (currNode.get_g() + (childNode.get_g() - currNode.get_cost())) < closedList[currNode.state_hash()].get_cost():
                 # add new node to heap since it is cheaper it will show first
                 childNode.set_cost(currNode.get_g() + (childNode.get_g() - currNode.get_cost()))
                 heapq.heappush(openList, childNode)
-                closedList[childNode.state_hash()] = childNode.get_cost()
+                # update cost in closedList
+                closedList[childNode.state_hash()] = childNode
         # re-heapify list to maintain structure
         heapq.heapify(openList)
     # if loop ends and goal was not found then there was no solution to be found
