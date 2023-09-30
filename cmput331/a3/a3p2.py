@@ -4,7 +4,7 @@
 #
 # CMPUT 331 Student Submission License
 # Version 1.0
-# Copyright 2023 <<Insert your name here>>
+# Copyright 2023 <Ethan Chiu>
 #
 # Redistribution is forbidden in all circumstances. Use of this software
 # without explicit authorization from the author is prohibited.
@@ -33,11 +33,24 @@
 """
 CMPUT 331 Assignment 3 Student Solution
 September 2023
-Author: <Your name here>
+Author: Ethan Chiu
 """
 
 def random_generator(a, b, c, m, r0, r1, n):
-    pass
+    # Ri
+    ri = r0
+    # Ri+1
+    rip1 = r1
+    randomNums = []
+    
+    for i in range(n):
+        # generate new random number and add to list
+        randomNum = (a * rip1 + b * ri + c) % m
+        randomNums.append(randomNum)
+        # change Ri and Ri+1 accordingly
+        ri = rip1
+        rip1 = randomNum
+    return randomNums
 
 
 
