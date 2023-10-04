@@ -1,0 +1,4 @@
+function [L, U] = myLU(A)
+    dim = size(A, 1);
+
+    k = [1:dim -1]

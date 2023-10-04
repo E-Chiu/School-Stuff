@@ -1,0 +1,17 @@
+function [M_k, L_k] = elimMat(A, k)
+    dim = size(A);
+    % get the column we want to eliminate
+    kCol = A(:, k);
+    % create an identity matrix
+    I = eye(dim(1));
+    % create vector of 0s for m
+    m = zeros(k, 1);
+    % get mk+1 onwards
+    mkp1 = kCol(k+1:end);
+    %combine to get the whole column
+    mkp1 = [m; mkp1];
+    % ek is the kth column of I
+    ek = I(:, k);
+
+
+%mi = ai/ak
