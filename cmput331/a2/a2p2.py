@@ -55,7 +55,7 @@ def encryptMessage(key: List[int], message: str):
 
 
 def test():
-    print(encryptMessage([2, 4, 1, 5, 3], "CIPHERS ARE FUN"))
+    print(encryptMessage([2, 4, 1, 3], "CIPHERS ARE FUN"))
     assert encryptMessage([2, 4, 1, 5, 3], "CIPHERS ARE FUN") == "IS HAUCREERNP F"
     assert encryptMessage([1, 3, 2], "ABCDEFG") == "ADGCFBE"
     assert encryptMessage([2, 1], "HELLO WORLD") == "EL OLHLOWRD"

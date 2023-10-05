@@ -44,7 +44,20 @@ def hackSimpleSub(message: str):
     First runs the textbook program to get an initial, potentially incomplete decipherment.
     Then uses regular expressions and a dictionary to decipher additional letters.
     """
-    raise NotImplementedError()
+    # First create a simple sub key from the letterMapping mapping:
+    key = ['x'] * len(LETTERS)
+    for cipherletter in LETTERS:
+        if len(letterMapping[cipherletter]) == 1:
+            # If there's only one letter, add it to the key.
+            keyIndex = LETTERS.find(letterMapping[cipherletter][0])
+            key[keyIndex] = cipherletter
+        else:
+            ciphertext = ciphertext.replace(cipherletter.lower(), '_')
+            ciphertext = ciphertext.replace(cipherletter.upper(), '_')
+    key = ''.join(key)
+
+    # With the key we've created, decrypt the ciphertext:
+    return simpleSubCipher.decryptMessage(key, ciphertext)
 
 def test():
     # Provided test.

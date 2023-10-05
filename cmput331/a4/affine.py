@@ -1,6 +1,11 @@
 import cryptomath
 SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.'
 
+def getKeyParts(key):
+    keyA = key // len(SYMBOLS)
+    keyB = key % len(SYMBOLS)
+    return (keyA, keyB)
+
 def affine(key, message):
     """
     Decrypts a given cipher text and key using the Affine cipher

@@ -4,7 +4,7 @@
 #
 # CMPUT 331 Student Submission License
 # Version 1.0
-# Copyright 2023 <<Insert your name here>>
+# Copyright 2023 <Ethan Chiu>
 #
 # Redistribution is forbidden in all circumstances. Use of this software
 # without explicit authorization from the author is prohibited.
@@ -33,6 +33,7 @@
 """
 Nomenclator cipher
 """
+import random
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -44,7 +45,53 @@ def translateMessage(key: str, message: str, codebook: dict, mode: str):
     specifying the action to be taken. Returns a string containing the
     ciphertext (if encrypting) or plaintext (if decrypting).
     """
-    raise NotImplementedError()
+    if mode == 'encrypt':
+        ciphertext = ""
+
+        for word in message.split(' '):
+            if word.lower() in codebook:
+                # if word is in codebook replace with the number
+                ciphertext += str(random.choice(codebook[word.lower()]))
+            else:
+                for letter in word:
+                    if letter.upper() in LETTERS:
+                        # find index
+                        index = LETTERS.find(letter.upper())
+                        # add to message keeping in upper/lowercase
+                        if letter.isupper():
+                            ciphertext += key[index].upper()
+                        else:
+                            ciphertext += key[index].lower()
+                    else:
+                        # otherwise it is a punctuation mark and you should just add it back
+                        ciphertext += letter
+                    # add the space back
+            ciphertext += ' '
+        return ciphertext
+    elif mode == "decrypt":
+        plaintext = ""
+
+        for letter in message:
+            if letter.upper() in LETTERS:
+                if letter.upper() in key:
+                    # find index
+                    index = key.find(letter.upper())
+                    # add to message keeping in upper/lowercase
+                    if letter.isupper():
+                        plaintext += LETTERS[index].upper()
+                    else:
+                        plaintext += LETTERS[index].lower()
+            else:
+                # if word is not in letters check if it is in codebook
+                found = False
+                for dictKey, value in codebook.items():
+                    if letter in value:
+                        plaintext += dictKey
+                        found = True
+                # otherwise it is a punctuation mark and you should just add it back
+                if not found:
+                    plaintext += letter
+        return plaintext
 
 
 def encryptMessage(key: str, codebook: dict, message: str):

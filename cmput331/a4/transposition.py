@@ -48,36 +48,35 @@ def decryptMessage(key: List[int], message: str):
         row += 1
         if row == len(key):
             row = 0
+        if index == len(message) - 1 and row != len(key):
+            # if message is not a square then add empty till it is
+            for i in range(row, len(key)):
+                mappingArr[i].append(None)
 
-    # loop through the message place the letters into their columns
-    index = 0
-    for col in range(len(key)):
-        for row in range(len(mappingArr[col])):
-            mappingArr[col][row] = message[index]
-            index += 1
-
-    # order the array based off the key
-    decryptArr = [[] for i in range(len(key))]
+    # fill in cells
     index = 0
     for col in key:
-        decryptArr[col - 1] = mappingArr[index]
-        index += 1
+        for row in range(len(mappingArr[0])):
+            if mappingArr[col-1][row] != None:
+                mappingArr[col-1][row] = message[index]
+                index += 1
 
     decryptedMessage = ''
     # put the decrypted string back together
     col = 0
     row = 0
     for index in range(len(message)):
-        decryptedMessage += decryptArr[col][row]
+        if mappingArr[col][row] != None:
+            decryptedMessage += mappingArr[col][row]
         col += 1
-        if col == len(decryptArr):
+        if col == len(mappingArr):
             col = 0
             row += 1
         
     return decryptedMessage
 
 def test():
-    assert decryptMessage([2, 4, 1, 5, 3], "IS HAUCREERNP F") == "CIPHERS ARE FUN"
+    assert decryptMessage([5, 2, 3, 4, 1], "   ab    ") == "  a    b "
 
 from sys import flags
 
