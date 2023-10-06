@@ -1,7 +1,7 @@
 # Simple Substitution Cipher
 # https://www.nostarch.com/crackingcodes (BSD Licensed)
 
-import pyperclip, sys, random
+import sys, random
 
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -20,7 +20,6 @@ def main():
     print('Using key %s' % (myKey))
     print('The %sed message is:' % (myMode))
     print(translated)
-    pyperclip.copy(translated)
     print()
     print('This message has been copied to the clipboard.')
 
