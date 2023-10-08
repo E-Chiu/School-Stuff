@@ -1,7 +1,7 @@
 # Simple Substitution Cipher Hacker
 # https://www.nostarch.com/crackingcodes (BSD Licensed)
 
-import re, copy, simpleSubCipher, wordPatterns, makeWordPatterns
+import re, copy, pyperclip, simpleSubCipher, wordPatterns, makeWordPatterns
 
 
 
@@ -26,6 +26,7 @@ def main():
     print()
     print('Copying hacked message to clipboard:')
     hackedMessage = decryptWithCipherletterMapping(message, letterMapping)
+    pyperclip.copy(hackedMessage)
     print(hackedMessage)
 
 

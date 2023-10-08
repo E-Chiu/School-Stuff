@@ -10,13 +10,10 @@ for i = 1:m
     b = M*b;
 end
 
-% check equation can be solved
+% check answer is correctly solved
 expX  = [-1; 3; -1];
 x = backSubst(A, b);
 
-assert(expX, x);
+assert(isequal(expX, x));
 
-% check explicit LU factorization is correct
-expL = [1 0 0; 4 1 0; 0 0.5 1];
-expU = [1 2 2; 0 -4 -6; 0 0 -1];
 

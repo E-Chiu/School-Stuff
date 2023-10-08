@@ -46,7 +46,7 @@ def hackSimpleSub(message: str):
     """
     
     # Run the first pass
-    # This Section of code taken from simpleSubHacker.py
+    ########## This Section of code taken from simpleSubHacker.py ##########
     ciphertext = message
     letterMapping = simpleSubHacker.hackSimpleSub(message)
     
@@ -64,6 +64,7 @@ def hackSimpleSub(message: str):
 
     # With the key we've created, decrypt the ciphertext:
     firstPass = simpleSubCipher.decryptMessage(key, message)
+    ########## end of the sectiont aken from simpleSubHacker.py ##########
 
     # find the indexes of all underscores
     cipherWords = ciphertext.split(' ')
@@ -72,16 +73,19 @@ def hackSimpleSub(message: str):
     unknownWords = {}
     for wordIndex in range(len(firstPassWords)):
         # if a word has a missing letter get its ciphertext character and put it in a dictionary
+        # dictionary key is the cipher letter and value is a tuple of word and index
         word = firstPassWords[wordIndex]
+        # remove underscores and non alphanumeric characters
+        word = re.sub(r'\W+', '', word)
         if '_' in word:
             for letterIndex in range(len(word)):
                 letter = word[letterIndex]
                 if letter == '_':
                     cipherChar = cipherWords[wordIndex][letterIndex]
                     if cipherChar in unknownWords:
-                        unknownWords[cipherChar].append(word)
+                        unknownWords[cipherChar].append((word, letterIndex))
                     else:
-                        unknownWords[cipherChar] = [word]
+                        unknownWords[cipherChar] = [(word, letterIndex)]
 
     dictFile = open("dictionary.txt", "r")
     dictionary = dictFile.read()
@@ -91,14 +95,16 @@ def hackSimpleSub(message: str):
         matches = []
         possibleLetters = {}
         # for every missing word run a regex and get all possible matches
-        for word in cipherValue:
+        for word, index in cipherValue:
             # remove underscores and non alphanumeric characters
             strippedWord = re.sub(r'\W+', '', word)
+            # if the word is all blanks and is not a one letter word skip it
+            if strippedWord.replace("_", "") == "" and len(strippedWord) > 1:
+                continue
             strippedWord = strippedWord.replace("_", "\w{1}")
             matches = re.findall(r"(?i)\b" + strippedWord + r"\b", dictionary)
             for match in matches:
                 # isolate the possible letter
-                index = word.find('_')
                 possibleLetter = match[index]
                 search = re.search(possibleLetter, firstPass)
                 if search == None:
@@ -113,18 +119,32 @@ def hackSimpleSub(message: str):
             if len(plainValue) > max:
                 letter = plainKey
                 max = len(plainValue)
-        index = LETTERS.find(letter.upper()) + 1
+        index = LETTERS.find(letter.upper())
         # add letter to key
         if key[index] == "x":
             key = key[:index] + cipherKey.upper() + key[index + 1:]
-    return
+
+    # decrypt the text using the new key
+    # code here is taken from substitution.py from the eclass handout
+    translated = ''
+
+    for symbol in ciphertext:
+        if symbol.upper() in key:
+            symIndex = key.find(symbol.upper())
+            if symbol.isupper():
+                translated += LETTERS[symIndex].upper()
+            else:
+                translated += LETTERS[symIndex].lower()
+        else:
+            translated += symbol
+    return translated
 
 
 
 
 def test():
     # Provided test.
-    message = 'Sy l nlx sr pyyacao l ylwj eiswi upar lulsxrj isr sxrjsxwjr, ia esmm rwctjsxsza sj wmpramh, lxo txmarr jia aqsoaxwa sr pqaceiamnsxu, ia esmm caytra jp famsaqa sj. Sy, px jia pjiac ilxo, ia sr pyyacao rpnajisxu eiswi lyypcor l calrpx ypc lwjsxu sx lwwpcolxwa jp isr sxrjsxwjr, ia esmm lwwabj sj aqax px jia rmsuijarj aqsoaxwa. Jia pcsusx py nhjir sr agbmlsxao sx jisr elh. -Facjclxo Ctrramm'
+    message = 'UIF NJTTJMF LOPXT XIFSF JU JT BU BMM UJNFT. JU LOPXT UIJT CFDBVTF JU LOPXT XIFSF JU JTO\'U. CZ TVCUSBDUJOH XIFSF JU JT GSPN XIFSF JU JTO\'U, PS XIFSF JU JTO\'U GSPN XIFSF JU JT (XIJDIFWFS JT HSFBUFS), JU PCUBJOT B EJGGFSFODF, PS EFWJBUJPO. UIF HVJEBODF TVCTZTUFN VTFT EFWJBUJPOT UP HFOFSBUF DPSSFDUJWF DPNNBOET UP ESJWF UIF NJTTJMF GSPN B QPTJUJPO XIFSF JU JT UP B QPTJUJPO XIFSF JU JTO\'U, BOE BSSJWJOH BU B QPTJUJPO XIFSF JU XBTO\'U, JU OPX JT. '
     print(hackSimpleSub(message))
     # End of provided test.
     
