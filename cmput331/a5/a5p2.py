@@ -36,11 +36,36 @@ Problem 2
 
 from sys import flags
 import numpy as np
+import re
 def evalDecipherment(text1: str, text2: str) -> [float, float]:
     """
     docstring
     """
-    raise NotImplementedError()
+    # remove spaces
+    text1 = text1.replace(' ', '')
+    text2 = text2.replace(' ', '')
+    # make uppercase so it is case insensitive
+    text1 = text1.upper()
+    text2 = text2.upper()
+
+    keyAcc = 0
+    deciphermentAcc = 0
+    uniques = []
+    for index in range(len(text1)):
+        if text1[index] != text2[index]:
+            if text2[index] not in uniques:
+                # if not a recorded character yet add to counter and add to list
+                keyAcc += 1
+                uniques.append(text1[index])
+            # if not matching add to deciphermentAcc regardless
+            deciphermentAcc += 1
+        else:
+            if text2[index] not in uniques:
+                # add to uniques even if correct
+                uniques.append(text1[index])
+    # return results
+    return [1-(keyAcc/len(uniques)),1-(deciphermentAcc/len(text1))]
+
 
 
 def test():

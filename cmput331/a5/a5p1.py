@@ -34,20 +34,63 @@
 Subsititution cipher frequency analysis
 """
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 from sys import flags
 from collections import Counter # Helpful class, see documentation or help(Counter)
+import re
 
 def freqDict(ciphertext: str) -> dict:
     """
     Analyze the frequency of the letters
     """
-    pass
+    # count the characters
+    stippedCipher = re.sub(r'\W+', '', ciphertext)
+    counter = Counter(stippedCipher)
+    letterCounts = counter.most_common()
+
+    mapDict = {}
+    index = 0
+    for letter, count in letterCounts:
+        # if it is the biggest number just apply mapping and move on
+        if index == len(letterCounts) -1 or count > letterCounts[index + 1][1]:
+            mapDict[letter] =  ETAOIN[index]
+            index += 1
+        else:
+            tempList = []
+            startIndex = index
+            while letterCounts[index][1] > letterCounts[index + 1][1]:
+                # add chars to list
+                tempList.append(letterCounts[index])
+                index += 1
+            # sort alphabetically
+            tempList = sorted(tempList)
+            while startIndex > index:
+                # pop from temp list and assign it to next letter
+                mapDict[tempList.pop()] = ETAOIN[startIndex]
+                startIndex += 1
+    return mapDict
+
+    
 
 def freqDecrypt(mapping: dict, ciphertext: str) -> str:
     """
     Apply the mapping to ciphertext
     """
-    pass
+    plaintext = ''
+    # loop through text and apply mapping
+    for letter in ciphertext:
+        if letter in mapping:
+            translated = mapping[letter]
+            if letter.isupper():
+                plaintext += translated.upper()
+            else:
+                plaintext += translated.lower()
+        else:
+            plaintext += letter
+    return plaintext
+
+
 
 def test():
     "Run tests"
