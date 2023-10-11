@@ -15,5 +15,3 @@ expX  = [-1; 3; -1];
 x = backSubst(A, b);
 
 assert(isequal(expX, x));
-
-
