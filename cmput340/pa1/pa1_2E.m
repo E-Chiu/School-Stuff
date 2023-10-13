@@ -1,17 +1,10 @@
-A = [1 2 2; 4 4 2; 4 6 4];
-b = [3; 6; 10];
-
-[m, n] = size(A);
+A = [1 2 3; 3 2 4; 1 3 2];
+b = [1; 1; 3];
 
 % apply transformations to turn into U
-for i = 1:m
-    M = elimMat(A, i);
-    A = M*A;
-    b = M*b;
-end
+[L, U] = myLU(A);
+
+x = fwdSubst(L, b);
 
 % check answer is correctly solved
-expX  = [-1; 3; -1];
-x = backSubst(A, b);
-
-assert(isequal(expX, x));
+x = backSubst(U, x);
