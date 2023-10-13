@@ -41,30 +41,29 @@ def evalDecipherment(text1: str, text2: str) -> [float, float]:
     """
     docstring
     """
-    # remove spaces
-    text1 = text1.replace(' ', '')
-    text2 = text2.replace(' ', '')
+    # remove non alphabet characters
+    text1 = re.sub("[^a-z]", "", text1)
+    text2 = re.sub("[^a-z]", "", text2)
     # make uppercase so it is case insensitive
     text1 = text1.upper()
     text2 = text2.upper()
 
     keyAcc = 0
     deciphermentAcc = 0
-    uniques = []
+    mapping = {}
     for index in range(len(text1)):
-        if text1[index] != text2[index]:
-            if text2[index] not in uniques:
-                # if not a recorded character yet add to counter and add to list
-                keyAcc += 1
-                uniques.append(text1[index])
-            # if not matching add to deciphermentAcc regardless
+        if text1[index] == text2[index]:
+            # if matching add to deciphermentAcc
             deciphermentAcc += 1
-        else:
-            if text2[index] not in uniques:
-                # add to uniques even if correct
-                uniques.append(text1[index])
+        # if not mapped yet add to map
+        if text1[index] not in mapping:
+            mapping[text1[index]] = text2[index]
+    # check for key accuracy
+    for key, value in mapping.items():
+        if key == value:
+            keyAcc += 1
     # return results
-    return [1-(keyAcc/len(uniques)),1-(deciphermentAcc/len(text1))]
+    return [(keyAcc/len(mapping)),(deciphermentAcc/len(text1))]
 
 
 
