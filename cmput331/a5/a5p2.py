@@ -44,6 +44,9 @@ def evalDecipherment(text1: str, text2: str) -> [float, float]:
     # remove spaces
     text1 = text1.replace(' ', '')
     text2 = text2.replace(' ', '')
+    # remove nonalphanumeric
+    text1 = re.sub(r'\W+', '', text1)
+    text2 = re.sub(r'\W+', '', text2)
     # make uppercase so it is case insensitive
     text1 = text1.upper()
     text2 = text2.upper()
@@ -53,18 +56,16 @@ def evalDecipherment(text1: str, text2: str) -> [float, float]:
     uniques = []
     for index in range(len(text1)):
         if text1[index] != text2[index]:
-            if text2[index] not in uniques:
+            # if not matching add to deciphermentAcc regardless
+            deciphermentAcc += 1
+            if text1[index] not in uniques:
                 # if not a recorded character yet add to counter and add to list
                 keyAcc += 1
                 uniques.append(text1[index])
-            # if not matching add to deciphermentAcc regardless
-            deciphermentAcc += 1
-        else:
-            if text2[index] not in uniques:
-                # add to uniques even if correct
-                uniques.append(text1[index])
+    
+    text1Unique = ''.join(set(text1))
     # return results
-    return [1-(keyAcc/len(uniques)),1-(deciphermentAcc/len(text1))]
+    return [1-(keyAcc/len(text1Unique)),1-(deciphermentAcc/len(text1))]
 
 
 
