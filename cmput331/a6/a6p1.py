@@ -4,7 +4,7 @@
 #
 # CMPUT 331 Student Submission License
 # Version 1.0
-# Copyright 2023 <<Insert your name here>>
+# Copyright 2023 <Ethan Chiu>
 #
 # Redistribution is forbidden in all circumstances. Use of this software
 # without explicit authorization from the author is prohibited.
@@ -36,16 +36,63 @@ Problem 1
 
 from sys import flags
 
-def ngramsFreqsFromFile(textFile: "str path to a text file", n: int) -> dict:
+def ngramsFreqsFromFile(textFile: str, n: int) -> dict:
     """
     textFile: 'wells.txt'
     """
-    raise NotImplementedError()
+    # open textfile
+    textDoc = open(textFile, "r")
+    textText = textDoc.read()
+
+    ngramDict = {}
+    # get the counts of the ngram first
+    # keep looping while we can still get a n sized ngram
+    index = 0
+    total = 0
+    while index + n <= len(textText):
+        ngram = textText[index:index+n]
+        if ngram not in ngramDict:
+            ngramDict[ngram] = 1
+            total += 1
+        else:
+            ngramDict[ngram] += 1
+            total += 1
+        index += 1
+    
+    # calculate relative freq of the ngrams
+    for key, value in ngramDict.items():
+        ngramDict[key] = value / total
+    
+    return ngramDict
+
+
+
 
 def test():
     "Run tests"
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
+    returnDict = ngramsFreqsFromFile("wells.txt", 1)
+    total = 0
+    for key, value in returnDict.items():
+        total += value
+    assert(total > 0.9)
+    assert(total < 1.1)
+
+    returnDict = ngramsFreqsFromFile("wells.txt", 3)
+    total = 0
+    for key, value in returnDict.items():
+        total += value
+    assert(total > 0.9)
+    assert(total < 1.1)
+
+    returnDict = ngramsFreqsFromFile("wells.txt", 5)
+    total = 0
+    for key, value in returnDict.items():
+        total += value
+    assert(total > 0.9)
+    assert(total < 1.1)
+
 
 if __name__ == "__main__" and not flags.interactive:
     test()
