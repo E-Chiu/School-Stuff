@@ -37,7 +37,36 @@ Problem 2
 from sys import flags
 
 def keyScore(mapping: dict, ciphertext: str, frequencies: dict, n: int) -> float:
-    raise NotImplementedError()
+    # try to decipher with mapping
+    plaintext = ""
+    for letter in ciphertext:
+        if not letter.isalpha():
+            plaintext += letter
+        else:
+            # get value from mapping and add to plaintext
+            plaintext += mapping[letter]
+    
+    # get counts of ngrams
+    ngramDict = {}
+    # keep looping while we can still get a n sized ngram
+    index = 0
+    while index + n <= len(plaintext):
+        ngram = plaintext[index:index+n]
+        if ngram not in ngramDict:
+            ngramDict[ngram] = 1
+        else:
+            ngramDict[ngram] += 1
+        index += 1
+
+    # calculate the ngram score
+    ngramScore = 0
+    for key, value in ngramDict.items():
+        # only calculate if n gram is in freqs
+        if key in frequencies:
+            keyScore += value * frequencies[key]
+    
+    return ngramScore
+
   
 
 def test():

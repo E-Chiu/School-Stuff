@@ -50,6 +50,7 @@ def ngramsFreqsFromFile(textFile: str, n: int) -> dict:
     index = 0
     total = 0
     while index + n <= len(textText):
+        # increment the count of the ngram
         ngram = textText[index:index+n]
         if ngram not in ngramDict:
             ngramDict[ngram] = 1
