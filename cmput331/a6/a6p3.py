@@ -35,9 +35,32 @@ Problem 3
 """
 
 from sys import flags
+from a6p2 import keyScore
+
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 def bestSuccessor(mapping: dict, ciphertext: str, frequencies: dict, n: int) -> dict:
-    raise NotImplementedError()
+
+    bestMapping = mapping
+    bestMapScore = keyScore(mapping, ciphertext, frequencies, n)
+    for indexA in range(0, 26):
+        for indexB in range(indexA, 26):
+            # for index swap with every other index above it
+            mappingPrime = dict(mapping)
+            mappingPrime[LETTERS[indexA]] = mapping[LETTERS[indexB]]
+            mappingPrime[LETTERS[indexB]] = mapping[LETTERS[indexA]]
+            mapScore = keyScore(mappingPrime, ciphertext, frequencies, n)
+
+            if mapScore > bestMapScore:
+                # if m' is better replace it
+                bestMapping = mappingPrime
+                bestMapScore = mapScore
+            elif mapScore == bestMapScore:
+                # if a tie needs to be broken use the given tiebreaker
+                bestMapping = breakKeyScoreTie(mapping, bestMapping, mappingPrime)
+                bestMapScore = mapScore
+    # return the best one found
+    return bestMapping
 
 def breakKeyScoreTie(originalMapping, successorMappingA, successorMappingB):
     """

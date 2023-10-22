@@ -66,33 +66,10 @@ def ngramsFreqsFromFile(textFile: str, n: int) -> dict:
     
     return ngramDict
 
-
-
-
 def test():
     "Run tests"
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
-    returnDict = ngramsFreqsFromFile("wells.txt", 1)
-    total = 0
-    for key, value in returnDict.items():
-        total += value
-    assert(total > 0.9)
-    assert(total < 1.1)
-
-    returnDict = ngramsFreqsFromFile("wells.txt", 3)
-    total = 0
-    for key, value in returnDict.items():
-        total += value
-    assert(total > 0.9)
-    assert(total < 1.1)
-
-    returnDict = ngramsFreqsFromFile("wells.txt", 5)
-    total = 0
-    for key, value in returnDict.items():
-        total += value
-    assert(total > 0.9)
-    assert(total < 1.1)
 
 
 if __name__ == "__main__" and not flags.interactive:

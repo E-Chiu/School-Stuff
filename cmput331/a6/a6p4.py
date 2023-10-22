@@ -36,7 +36,40 @@ Problem 4
 
 from sys import flags
 
-def breakSub(cipherFile: "str path to a cipher file", textFile: "str path to a text file", n: int) -> None:
+import numpy as np
+from a6p1 import ngramsFreqsFromFile
+from a6p3 import bestSuccessor, LETTERS
+
+ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+
+def decipherToFile(mapping, cipherText):
+    # do the substitution
+    plainText = ''
+    for letter in cipherText:
+        if letter not in mapping:
+            plainText += letter
+        else:
+            plainText += mapping[letter]
+    
+    # write to file
+    outputFile = open("text_plain.txt", "w")
+    outputFile.write(plainText)
+
+def getCipherFreqs(cipherText):
+    freqs = {' ': 0}
+    for letter in LETTERS:
+        freqs[letter] = 0
+    # get the counts of the letters
+    for letter in cipherText:
+        freqs[letter] += 1
+    # get the freq
+    for key, value in freqs.items():
+        freqs[key] = value / len(cipherText)
+
+    return freqs
+
+
+def breakSub(cipherFile: str, textFile: str, n: int) -> None:
     """
     Inputs:
         cipherFile: 
@@ -47,12 +80,47 @@ def breakSub(cipherFile: "str path to a cipher file", textFile: "str path to a t
         'text_finnegan_plain.txt' for implementation
         'text_plain.txt' for submission
     """
-    raise NotImplementedError()
-        
+    # open textfile
+    cipherDoc = open(cipherFile, "r")
+    cipherText = cipherDoc.read()
+
+    # get the ngram freqs
+    textFreqs = ngramsFreqsFromFile(textFile, n)
+    
+    cipherFreqs = getCipherFreqs(cipherText)
+
+    # sort the frequencies
+    keys = list(cipherFreqs.keys())
+    values = list(cipherFreqs.values())
+    sorted_value_index = np.argsort(values)
+    sorted_dict = {keys[i]: values[i] for i in sorted_value_index}
+
+    # map sorted frequencies to etaoin
+    mapping = {}
+    index = 25
+    for key, value in sorted_dict.items():
+        if key == ' ':
+            mapping[key] = ' '
+        else:
+            mapping[key] = ETAOIN[index]
+            index -= 1
+
+    oldMap = {}
+    while True:
+        # keep looping and finding successors
+        bestMap = bestSuccessor(mapping, cipherText, textFreqs, n)
+        if bestMap == oldMap:
+            # once best map has been found apply the decipherment
+            decipherToFile(bestMap, cipherText)
+            return
+        else:
+            oldMap = bestMap
+
 def test():
     "Run tests"
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
+    breakSub("text_finnegan_cipher.txt", "wells.txt", 4)
     
 if __name__ == "__main__" and not flags.interactive:
     test()

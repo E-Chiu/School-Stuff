@@ -136,6 +136,8 @@ def problem_3():
 
     try:
         from a6p3 import bestSuccessor
+        total = 0
+        right = 0
         
         for n in range(1, 5):
             frequencies = wells_cleaned_freqs[n]
@@ -147,7 +149,10 @@ def problem_3():
                 
                     p3_results.append(best)
                     answer = p3_answers[len(p3_results)-1]
+                    total += 1
+                    right += answer.best_successor == best
                     assert len(set(mapping.items()) - set(best.items())) <= 2
+        print(f"Problem 3: {right=} {total=}")
 
         print("Problem 3: Tests passed :)")
     except NotImplementedError:

@@ -63,11 +63,9 @@ def keyScore(mapping: dict, ciphertext: str, frequencies: dict, n: int) -> float
     for key, value in ngramDict.items():
         # only calculate if n gram is in freqs
         if key in frequencies:
-            keyScore += value * frequencies[key]
+            ngramScore += value * frequencies[key]
     
     return ngramScore
-
-  
 
 def test():
     "Run tests"
