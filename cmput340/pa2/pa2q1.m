@@ -9,12 +9,13 @@ Y2 = [ 1.51657986e+01  1.18834486e+01  1.14908377e+01  9.69999012e+00   8.837529
 % dataset 1 seems to be periodic so a trig interpolation would be best
 subplot(2,1,1)
 scatter(X1, Y1);
+
 hold on
 [coeff] = func_fit(X1, Y1, "interpolate", "trig", 0);
-x = linspace(min(X1), max(X1));
+x1 = linspace(min(X1), max(X1));
 degrees = size(X1, 2);
-y = [];
-for t = 1:size(x)
+y1 = [];
+for t = 1:size(x1,2)
     pt = coeff(1);
     % calculate cos side
     for k = 2:floor((degrees)/2)
@@ -25,10 +26,27 @@ for t = 1:size(x)
         pt = pt + coeff(k)*sin(coeff(k)*t);
     end
     % add to y
-    y = [y pt];
+    y1 = [y1 pt];
 end
-plot(x, y)
+plot(x1, y1)
 hold off
 
+% dataset 2 seems to be roughly quadratic so a approximation of degree 2 would be best
 subplot(2,1,2)
 scatter(X2, Y2);
+
+hold on
+[coeff] = func_fit(X2, Y2, "approximate", "poly", 2);
+x2 = linspace(min(X2), max(X2));
+y2 = [];
+for t = 1:size(x2, 2)
+    pt = 0;
+    % calculate p(n-1)
+    for n = 1:size(coeff, 1)
+        pt = pt + coeff(n)*x2(t)^(n-1);
+    end
+    % add to y
+    y2 = [y2 pt];
+end
+plot(x2, y2)
+hold off
