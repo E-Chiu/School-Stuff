@@ -11,28 +11,29 @@ scatter(X1, Y1);
 % dataset 1 seems to be periodic so a trig basis would be best
 hold on
 [coeffI] = func_fit(X1, Y1, "interpolate", "trig", 0);
-[coeffA] = func_fit(X1, Y1, "approximate", "trig", 4);
+[coeffA] = func_fit(X1, Y1, "approximate", "trig", 2);
 x = linspace(min(X1), max(X1));
 % plot interpolation
 y = plot_trig(coeffI, x, size(X1, 2));
 plot(x, y);
 %plot approximation
-y = plot_trig(coeffA, x, 4);
+y = plot_trig(coeffA, x, 2);
 plot(x, y);
 hold off;
 
+% dataset 2 seems to be roughly quadratic so a poly basis would be best
 subplot(2,1,2)
 scatter(X2, Y2);
-% dataset 2 seems to be roughly quadratic so a poly basis would be best
+
 hold on
 [coeffI] = func_fit(X2, Y2, "interpolate", "poly", 0);
 [coeffA] = func_fit(X2, Y2, "approximate", "poly", 2);
 x = linspace(min(X2), max(X2));
 % plot interpolation
-y = plot_poly(coeffI, x);
+y = plot_poly(coeffI, x, size(X1, 2));
 plot(x, y);
 % plot approximation
-y = plot_poly(coeffA, x);
+y = plot_poly(coeffA, x, 2);
 plot(x, y);
 hold off
 
@@ -53,7 +54,7 @@ function y = plot_trig(coeff, x, degrees)
     end
 end
 
-function y = plot_poly(coeff, x)
+function y = plot_poly(coeff, x, degrees)
     y = [];
     for t = 1:size(x, 2)
         pt = 0;

@@ -14,14 +14,12 @@ function [coefficient_vector] = func_fit(X,Y,type,basis,parameters)
         end
     elseif basis == "trig"
         if rem(degrees, 2) == 1
-            k = (degrees+1)/2;
+            k = (degrees+1)/2
         else
-            k = floor((degrees-1)/2);
-        end
         % form the 2 submatrices
             cosk = [cos(X.')];
             sink = [sin(X.')];
-        for degree = 2:k
+        for degree = 2:floor(degrees/2)
             cosk = [cosk cos(degree*X.')];
             sink = [sink sin(degree*X.')];
         end
