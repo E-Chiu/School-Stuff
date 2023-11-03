@@ -8,45 +8,52 @@ Y2 = [ 1.51657986e+01  1.18834486e+01  1.14908377e+01  9.69999012e+00   8.837529
 
 subplot(2,1,1);
 scatter(X1, Y1);
+title('Dataset 1');
 % dataset 1 seems to be periodic so a trig basis would be best
 hold on
 [coeffI] = func_fit(X1, Y1, "interpolate", "trig", 0);
 [coeffA] = func_fit(X1, Y1, "approximate", "trig", 4);
-x = linspace(min(X1), max(X1));
+x = linspace(min(X1), max(X1), 1000);
 % plot interpolation
-y = plot_trig(coeffI, x, size(X1, 2));
+y = plot_trig(coeffI, x);
 plot(x, y);
 %plot approximation
-y = plot_trig(coeffA, x, 4);
+y = plot_trig(coeffA, x);
 plot(x, y);
 hold off;
 
 subplot(2,1,2)
 scatter(X2, Y2);
+title('Dataset 2');
 % dataset 2 seems to be roughly quadratic so a poly basis would be best
 hold on
 [coeffI] = func_fit(X2, Y2, "interpolate", "poly", 0);
 [coeffA] = func_fit(X2, Y2, "approximate", "poly", 2);
-x = linspace(min(X2), max(X2));
+x = linspace(min(X2), max(X2), 1000);
 % plot interpolation
 y = plot_poly(coeffI, x);
 plot(x, y);
 % plot approximation
 y = plot_poly(coeffA, x);
 plot(x, y);
+ylim([-5,35]);
 hold off
 
-function y = plot_trig(coeff, x, degrees)
+%set different colors
+colororder(["#fc0303";"#03fc07";"#0b03fc"])
+
+function y = plot_trig(coeff, x)
     y = [];
+    degrees = size(coeff, 2);
     for t = 1:size(x,2)
         pt = coeff(1);
         % calculate cos side
         for k = 2:floor((degrees)/2)
-            pt = pt + coeff(k)*cos(coeff(k)*t);
+            pt = pt + coeff(k)*cos(k*t);
         end
         % calculate sin side
         for k = floor((degrees)/2)+1:degrees-1
-            pt = pt + coeff(k)*sin(coeff(k)*t);
+            pt = pt + coeff(k)*sin(k*t);
         end
         % add to y
         y = [y pt];
@@ -54,14 +61,5 @@ function y = plot_trig(coeff, x, degrees)
 end
 
 function y = plot_poly(coeff, x)
-    y = [];
-    for t = 1:size(x, 2)
-        pt = 0;
-        % calculate p(n-1)
-        for n = 1:size(coeff, 1)
-            pt = pt + coeff(n)*x(t)^(n-1);
-        end
-        % add to y
-        y = [y pt];
-    end
+    y = polyval(coeff, x);
 end

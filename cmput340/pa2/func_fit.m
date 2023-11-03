@@ -12,22 +12,18 @@ function [coefficient_vector] = func_fit(X,Y,type,basis,parameters)
             % concatenate t^degree
             A = [A (X.^degree).'];
         end
+        A = fliplr(A);
     elseif basis == "trig"
-        if rem(degrees, 2) == 1
-            k = (degrees+1)/2;
-        else
-            k = floor((degrees-1)/2);
-        end
         % form the 2 submatrices
-            cosk = [cos(X.')];
-            sink = [sin(X.')];
-        for degree = 2:k
-            cosk = [cosk cos(degree*X.')];
-            sink = [sink sin(degree*X.')];
+            cosk = [cos(X')];
+            sink = [sin(X')];
+        for degree = 2:floor((degrees-1)/2)
+            cosk = [cosk cos(degree*X')];
+            sink = [sink sin(degree*X')];
         end
         % put it all together
         A = [A cosk sink];
     end
     % solve linear system
-    coefficient_vector = A\Y.';
+    coefficient_vector = A\Y';
 end
