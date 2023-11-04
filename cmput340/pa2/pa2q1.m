@@ -12,7 +12,7 @@ title('Dataset 1');
 % dataset 1 seems to be periodic so a trig basis would be best
 hold on
 [coeffI] = func_fit(X1, Y1, "interpolate", "trig", 0);
-[coeffA] = func_fit(X1, Y1, "approximate", "trig", 4);
+[coeffA] = func_fit(X1, Y1, "approximate", "trig", 0);
 x = linspace(min(X1), max(X1), 1000);
 % plot interpolation
 y = plot_trig(coeffI, x);
@@ -44,16 +44,14 @@ colororder(["#fc0303";"#03fc07";"#0b03fc"])
 
 function y = plot_trig(coeff, x)
     y = [];
-    degrees = size(coeff, 2);
+    degrees = size(coeff, 1);
+    K = floor(degrees/2);
     for t = 1:size(x,2)
         pt = coeff(1);
-        % calculate cos side
-        for k = 2:floor((degrees)/2)
-            pt = pt + coeff(k)*cos(k*t);
-        end
-        % calculate sin side
-        for k = floor((degrees)/2)+1:degrees-1
-            pt = pt + coeff(k)*sin(k*t);
+        % calculate pt
+        for k = 1:K
+            pt = pt + coeff(k+1)*cos(k*x(t));
+            pt = pt + coeff(k+K+1)*sin(k*x(t));
         end
         % add to y
         y = [y pt];

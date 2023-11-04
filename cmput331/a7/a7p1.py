@@ -70,30 +70,27 @@ def antiKasiski(key: str, plaintext: str):
     Thwart Kasiski examination 
     """
     # create ngrams of the string
-    exitBool = True
+    ciphertext = ''
+    exitBool = False
     while not exitBool:
         ngrams  = {}
         for index in range(0, len(plaintext) - 3):
             ngram = plaintext[index:index+3]
-            if ngrams.has_key(ngram):
+            if ngram in ngrams:
                 ngrams[ngram] += 1
             else:
                 ngrams[ngram] = 1
         # find repeated ngrams
         repeated = []
         for dKey, value in ngrams.items():
-            if value > 2:
+            if value > 1:
                 repeated.append(dKey)
         if len(repeated) != 0:
             for ngram in repeated:
                 index = plaintext.index(ngram)
-                plaintext = plaintext[:index] + "X" + plaintext[index:index+3:]
-        else:
-            # if there are no repeats to be found we are good to encrypt
-            return vigenere(key, plaintext, "enrypt")
-
-
-
+                plaintext = plaintext[:index+3] + "X" + plaintext[index+3:]
+        # if there are no repeats to be found we are good to encrypt
+        ciphertext = vigenere(key, plaintext, "enrypt")
 
 
 def test():
