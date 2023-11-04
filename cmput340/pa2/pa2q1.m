@@ -10,33 +10,37 @@ subplot(2,1,1);
 scatter(X1, Y1);
 title('Dataset 1');
 % dataset 1 seems to be periodic so a trig basis would be best
+% interpolation would be best since it could go through all the points
 hold on
 [coeffI] = func_fit(X1, Y1, "interpolate", "trig", 0);
-[coeffA] = func_fit(X1, Y1, "approximate", "trig", 0);
+[coeffA] = func_fit(X1, Y1, "approximate", "trig", 4);
 x = linspace(min(X1), max(X1), 1000);
 % plot interpolation
 y = plot_trig(coeffI, x);
-plot(x, y);
+a1 = plot(x, y); M1 = 'interpolation';
 %plot approximation
 y = plot_trig(coeffA, x);
-plot(x, y);
+a2 = plot(x, y); M2 = 'approximation';
+legend([a1;a2], [M1;M2]);
 hold off;
 
 subplot(2,1,2)
 scatter(X2, Y2);
 title('Dataset 2');
 % dataset 2 seems to be roughly quadratic so a poly basis would be best
+% approximation would fit better here since it could match the quadratic curve
 hold on
 [coeffI] = func_fit(X2, Y2, "interpolate", "poly", 0);
 [coeffA] = func_fit(X2, Y2, "approximate", "poly", 2);
 x = linspace(min(X2), max(X2), 1000);
 % plot interpolation
 y = plot_poly(coeffI, x);
-plot(x, y);
+a1 = plot(x, y); M1 = 'interpolation';
 % plot approximation
 y = plot_poly(coeffA, x);
-plot(x, y);
+a2 = plot(x, y); M2 = 'approximation';
 ylim([-5,35]);
+legend([a1;a2], [M1;M2]);
 hold off
 
 %set different colors

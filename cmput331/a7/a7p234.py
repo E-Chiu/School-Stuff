@@ -37,20 +37,39 @@ Assignment 7 Problems 2, 3, and 4
 import re
 from sys import flags
 
+LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 def stringIC(text: str):
     """
     Compute the index of coincidence (IC) for text
     """
-    raise NotImplementedError()
-
+    # generate ci
+    ci = {}
+    for letter in LETTERS:
+        ci[letter] = 0
+    for char in text.upper():
+        ci[char] += 1
+    
+    # sum all the ci of the letters
+    sumC = 0
+    for letter in LETTERS:
+        sumC += ci[letter] * (ci[letter] - 1)
+    # calculate the IC
+    return sumC / (len(text)* (len(text)-1))
 
 def subseqIC(ciphertext: str, keylen: int):
     """
     Return the average IC of ciphertext for 
     subsequences induced by a given a key length
     """
-    raise NotImplementedError()
+    ics = 0
+    for i in range(keylen):
+        # get nth subkeys
+        subSequence = getNthSubkeysLetters(i+1, keylen, ciphertext)
+        # calculate the ic for the subsequence
+        ics += stringIC(subSequence)
+    # return the average
+    return ics/keylen
 
 
 def keyLengthIC(ciphertext: str, n: int):
@@ -58,7 +77,22 @@ def keyLengthIC(ciphertext: str, n: int):
     Return the top n keylengths ordered by likelihood of correctness
     Assumes keylength <= 20
     """
-    raise NotImplementedError()
+    keylenIC = {}
+    for keylen in range(1,21):
+        keylenIC[keylen] = subseqIC(ciphertext, keylen)
+    
+    # sort dict
+    keylenIC = dict(sorted(keylenIC.items(), key=lambda x: (-x[1], x[0])))
+    topLen = []
+    i = 0
+    for key, value in keylenIC.items():
+        topLen.append(key)
+        i+=1
+        if i == n:
+            return topLen
+
+
+
 
 
 def getNthSubkeysLetters(nth: int, keyLength: int, message: str):
@@ -78,13 +112,15 @@ def getNthSubkeysLetters(nth: int, keyLength: int, message: str):
         i += keyLength
     return ''.join(letters)
 
-
 def test():
     "Run tests"
-    assert stringIC("ABA") == 1 / 3
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
-
+    assert stringIC("ABA") == 1 / 3
+    assert subseqIC('PPQCAXQVEKGYBNKMAZUHKNHONMFRAZCBELGRKUGDDMA', 3) == 0.03882783882783883
+    assert subseqIC('PPQCAXQVEKGYBNKMAZUHKNHONMFRAZCBELGRKUGDDMA', 4) == 0.0601010101010101
+    assert subseqIC('PPQCAXQVEKGYBNKMAZUHKNHONMFRAZCBELGRKUGDDMA', 5) == 0.012698412698412698
+    assert keyLengthIC('PPQCAXQVEKGYBNKMAZUYBNGBALJONITSZMJYIMVRAGVOHTVRAUCTKSGDDWUOXITLAZUVAVVRAZCVKBQPIWPOU', 5) == [8, 16, 4, 12, 6]
 
 # Invoke test() if called via `python3 a7p234.py`
 # but not if `python3 -i a7p234.py` or `from a7p234 import *`

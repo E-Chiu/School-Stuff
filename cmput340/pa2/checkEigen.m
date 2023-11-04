@@ -1,4 +1,4 @@
-A = [1 2 3; 2 3 1; 3 1 2];
+A = [-1 0 2; 0 2 0; 3 0 4]; % random diagonalizable matrix i found
 [eigenVecs, eigenVals] = eigs(A);
 eigenVals = diag(eigenVals);
 
@@ -35,7 +35,7 @@ end
 for vec = 1:size (qrVecs, 2)
     Ax = A*qrVecs(vec);
     for i = 1:size(eigenVals,1)
-        lambdaX = [lambdaX eigenVals(i)*qrVecs(vec)];
+        lambdaX = [lambdaX eigenVals(i)*qrVecs(:,vec)];
     end
     ism = ismembertol(Ax, lambdaX);
 end
