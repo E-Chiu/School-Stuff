@@ -49,13 +49,22 @@ colororder(["#fc0303";"#03fc07";"#0b03fc"])
 function y = plot_trig(coeff, x)
     y = [];
     degrees = size(coeff, 1);
-    K = floor(degrees/2);
+    if rem(degrees, 2) == 1
+            % if odd number of points K=(n-1)/2
+            K = (degrees-1)/2
+        else
+            K = floor((degrees-1)/2)
+        end
     for t = 1:size(x,2)
         pt = coeff(1);
         % calculate pt
         for k = 1:K
             pt = pt + coeff(k+1)*cos(k*x(t));
             pt = pt + coeff(k+K+1)*sin(k*x(t));
+        end
+        if rem(degrees, 2) == 0
+            % if it was evaluate additional basis
+            pt = pt + coeff(end)*sin(K+1*x(t));
         end
         % add to y
         y = [y pt];
