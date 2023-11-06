@@ -13,7 +13,7 @@ title('Dataset 1');
 % interpolation would be best since it could go through all the points
 hold on
 [coeffI] = func_fit(X1, Y1, "interpolate", "trig", 0);
-[coeffA] = func_fit(X1, Y1, "approximate", "trig", 4);
+[coeffA] = func_fit(X1, Y1, "approximate", "trig", 2);
 x = linspace(min(X1), max(X1), 1000);
 % plot interpolation
 y = plot_trig(coeffI, x);

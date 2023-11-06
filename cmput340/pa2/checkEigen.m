@@ -1,41 +1,43 @@
-A = [-1 0 2; 0 2 0; 3 0 4]; % random diagonalizable matrix i found
+A = [2 0 3; 0 3 0; 0 0 3]; % random diagonalizable matrix i found
 [eigenVecs, eigenVals] = eigs(A);
 eigenVals = diag(eigenVals);
 
 % check for power iteration
 [powerVal, powerVec] = powerIteration(A);
-ism = ismembertol(powerVal, eigenVals);
+ism = ismembertol(powerVal,max(eigenVals));
 assert(ism);
-% see if Ax = lambdaX for any of the eigenVals matlab finds
+% see if Ax = lambdaX
 Ax = A*powerVec;
-lambdaX = [];
-for i = 1:size(eigenVals,1)
-    lambdaX = [lambdaX eigenVals(i)*powerVec];
-end
-ism = ismembertol(Ax, lambdaX);
+lambdaX = max(eigenVals)*powerVec;
+ism = ismembertol(Ax,lambdaX);
 assert(all(ism));
 
 % check for inverse iteration
 [inverseVal, inverseVec] = inverseIteration(A);
-ism = ismembertol(inverseVal, eigenVals);
-%assert(ism);
-% see if Ax = lambdaX for any of the eigenVals matlab finds
+ism = ismembertol(inverseVal,min(eigenVals));
+assert(ism);
+% see if Ax = lambdaX
 Ax = A*inverseVec;
-lambdaX = [];
-for i = 1:size(eigenVals,1)
-    lambdaX = [lambdaX eigenVals(i)*inverseVec];
-end
-%assert(ismembertol(inverseVec, eigenVecs));
+lambdaX = min(eigenVals)*inverseVec;
+ism = ismembertol(Ax,lambdaX);
+assert(all(ism));
 
 % check for qrIteration
 [qrVals, qrVecs] = qrIteration(A);
 for val = 1:size(qrVals, 1)
     assert(ismembertol(qrVals(val), eigenVals));
 end
-for vec = 1:size (qrVecs, 2)
-    Ax = A*qrVecs(vec);
+for vec = 1:size(qrVecs, 2)
+    found = 0;
+    Ax = A*qrVecs(:,vec);
     for i = 1:size(eigenVals,1)
-        lambdaX = [lambdaX eigenVals(i)*qrVecs(:,vec)];
+        lambdaX = eigenVals(i)*qrVecs(:,vec);
+        ism = ismembertol(Ax, lambdaX);
+        if all(ism)
+            found = 1;
+        end
     end
-    ism = ismembertol(Ax, lambdaX);
+    if ~found
+        error("eigenvec not found")
+    end
 end

@@ -69,36 +69,30 @@ def antiKasiski(key: str, plaintext: str):
     """
     Thwart Kasiski examination 
     """
-    # create ngrams of the string
-    ciphertext = ''
-    exitBool = False
-    while not exitBool:
-        ngrams  = {}
-        for index in range(0, len(plaintext) - 3):
-            ngram = plaintext[index:index+3]
-            if ngram in ngrams:
-                ngrams[ngram] += 1
-            else:
-                ngrams[ngram] = 1
-        # find repeated ngrams
-        repeated = []
-        for dKey, value in ngrams.items():
-            if value > 1:
-                repeated.append(dKey)
-        if len(repeated) != 0:
-            for ngram in repeated:
-                index = plaintext.index(ngram)
-                plaintext = plaintext[:index+3] + "X" + plaintext[index+3:]
-        # if there are no repeats to be found we are good to encrypt
-        ciphertext = vigenere(key, plaintext, "enrypt")
-
+    # encrypt the first time
+    encrypted = vigenere(key, plaintext, "encrypt")
+    index = 0
+    while index < len(plaintext):
+        # get first 3 characters
+        ngram = encrypted[index:index+3]
+        if encrypted[index:].count(ngram) > 1:
+            # if ngram is in the ciphertext more than once add an x
+            plaintext = plaintext[:index+3] + "X" + plaintext[index+3:]
+            # encrypt with changes
+            encrypted = vigenere(key, plaintext, "encrypt")
+            # jump index up
+            index += 4
+        else:
+            #move up normally
+            index += 1
+    return vigenere(key, plaintext, "encrypt")
 
 def test():
     "Run tests"
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
     assert antiKasiski('WICK', 'THOSEPOLICEOFFICERSOFFEREDHERARIDEHOMETHEYTELLTHEMAJOKETHOSEBARBERSLENTHERALOTOFMONEY') == 'PPQCAXQVEKGYBNZSYMTCTWHPAZGNDMTKNQFODWOOPPGHUBGVHBJOTUCTKSGDDWUOXITLAZUVAVVRAZCVKBQPIWPOU'
-
+    assert antiKasiski("WICK", "ABCDABCD") == 'WJEHZIDMZ'
 
 # Invoke test() if called via `python3 a7p1.py`
 # but not if `python3 -i a7p1.py` or `from a7p1 import *`
