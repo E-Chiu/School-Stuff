@@ -30,6 +30,11 @@ def main():
     goals = [State(4, 1), State(2, 1)]
     cbs_state = CBSState(gridded_map, starts, goals)
     cbs_search = CBS()
+    """
+    cost1, paths1 = cbs_state.compute_cost()
+    isSol = cbs_state.is_solution()
+    successors = cbs_state.successors()
+    """
     paths, cost = cbs_search.search(cbs_state)
     if paths is not None:
         print('Solution paths encountered for the easy test: ')
@@ -37,8 +42,8 @@ def main():
             print(agent, path)
         print()
 
-    name_map = "dao-map/combat2.map"
-    test_instances = "test-instances/instances.txt"
+    name_map = "dao-map/den009d.map"
+    test_instances = "test-instances/test_problems_den009d.txt"
 
     problems = read_instances(test_instances)
     gridded_map = Map(name_map)
