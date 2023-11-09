@@ -196,7 +196,7 @@ class CBSState:
         c1.set_constraint(state, timeStep, agents[0])
 
         c2 = CBSState(self._map, self._starts, self._goals)
-        c2.__constraints = copy.deepcopy(self._constraints)
+        c2._constraints = copy.deepcopy(self._constraints)
         c2.set_constraint(state, timeStep, agents[1])
 
         return [c1, c2]
