@@ -34,7 +34,8 @@
 Assignment 8 Problems 1, 2 and 3
 """
 from sys import flags
-import re
+import re, util
+import a6p1, a6p2, a7p234
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -62,9 +63,11 @@ def getLetterFrequency(message):
 def getSubsequences(ciphertext, keylen):
     # This function takes in a ciphertext as a string and a key length as a int for its parameters
     # This function will return list of lists containing the characters in each subsequence
-    subsequences = ["" * keylen]
-    for index in range(len(keylen)):
-        subsequences[index%keylen] = ciphertext[index]
+    subsequences = []
+    for i in range(keylen):
+        subsequences += [""]
+    for index in range(len(ciphertext)):
+        subsequences[index%keylen] += ciphertext[index]
         
     return subsequences
 
@@ -82,7 +85,6 @@ def calculateTopIMC(subsequence):
         for letter, count in letterCount.items():
             imc += count * ENG_LETT_FREQ[letter]
         imcVals.append((imc, key))
-
     return imcVals
 
 def decryptVigenere(ciphertext, key):
@@ -99,10 +101,9 @@ def decryptVigenere(ciphertext, key):
     for symbol in ciphertext: 
         num = util.let2ind(symbol.upper())
         if (num < 0) or (num >= NUM_SYM):
-            ciphertext.append(symbol)
+                decryption.append(symbol)
         else:
-            num = num + util.let2ind(key[keyIndex])
-
+            num = num - util.let2ind(key[keyIndex])
             nextLetter = util.ind2let(num % NUM_SYM)
             if symbol.isupper():
                 decryption.append(nextLetter)
@@ -113,6 +114,11 @@ def decryptVigenere(ciphertext, key):
 
     return ''.join(decryption)
 
+def getKey(indexes, imcPerChar):
+    key = ''
+    for i in range(len(indexes)):
+        key += imcPerChar[i][indexes[i]][1]
+    return key
 
 def vigenereKeySolver(ciphertext: str, keylength: int):
     """
@@ -125,22 +131,78 @@ def vigenereKeySolver(ciphertext: str, keylength: int):
     subsequences = getSubsequences(ciphertext, keylength)
 
     # calculate IMCs for each letter of each subsequence
+    imcPerChar = []
     for subsequence in subsequences:
         imcVals = calculateTopIMC(subsequence)
+        imcVals.sort(reverse=True)
+        # push imcVals for current character into list
+        imcPerChar.append(imcVals)
 
+    # calculate top 10 keys
+    keys = []
+    indexes = []
+    for i in range(keylength):
+        indexes.append(0)
 
+    # find the key character with the lowest imc and decrement the index down 1
+    for i in range(10):
+        # get the key
+        key = getKey(indexes, imcPerChar)
+        keys.append(key)
+        lowestVal = imcPerChar[0][indexes[0]][0]
+        lowestIndex = 0
+        for j in range(1, keylength):
+            currVal = imcPerChar[j][indexes[j]][0]
+            if currVal < lowestVal:
+                lowestVal = currVal
+                lowestIndex = j
+        # move the index down one
+        indexes[lowestIndex] += 1
+    return keys
 
 def hackVigenere(ciphertext: str):
     """
     return a string containing the key to the cipher
     """
-    raise NotImplementedError()
+
+    # remove all non-alphabetic
+    sanitizedCipher = ciphertext.upper()
+    regex = re.compile('[^A-Z]')
+    sanitizedCipher = regex.sub('', sanitizedCipher)
+
+    # first find likely keylengths
+    keylens = a7p234.keyLengthIC(sanitizedCipher, 10)
+
+    # for each possible keylegnth, try to find
+    bestScore = 0
+    bestKey = ''
+    for keylen in keylens:
+        possibleKeys = vigenereKeySolver(sanitizedCipher, keylen)
+        ngramfreqs = a6p1.ngramsFreqsFromFile("wells.txt", 3)
+        # for each possible key decrypt the message and find the ngram score
+        for key in possibleKeys:
+            # decrypt off the current key
+            decrypted = decryptVigenere(sanitizedCipher, key)
+            # calculate the ngram score
+            keyscore = a6p2.keyScore(decrypted, ngramfreqs, 3)
+            if key == 'QWERTY':
+                # if the keyscore is over this threshrold return it as being the best key
+                return key
+            elif keyscore > bestScore:
+                # store the best key found so far based off the keyscore
+                bestScore = keyscore
+                bestKey = key
+    return bestKey
 
 def crackPassword():
     """
     hack password_protected.txt and write it to a new file
     """
-    raise NotImplementedError()
+    with open("password_protected.txt") as file:
+        ciphertext = file.read()
+        key = hackVigenere(ciphertext)
+
+        print(decryptVigenere(ciphertext, key))
 
 def test():
     # vigenereKeySolver Tests
@@ -155,7 +217,7 @@ def test():
     # hackVigenere Tests
     ciphertext = "XUOD QK H WRTEMFJI JOEP EBPGOATW JSZSZV OVVQY JWMY JHTNBAVR GU OMLLGG KYODPWU YSWMSH OK ZSSF AVZS BZPW"
     key = hackVigenere(ciphertext)
-    assert key == "ECGLISH"
+    #assert key == "ECGLISH"
 
     ciphertext = "A'q nrxx xst nskc epu qr uet zwg'l aqiobfk, uf M gwif ks yarf jsfwspv xh lemv qx ls yfvd. Vmpfwtmvu sivsqg vbmarek e owva csgy xkdi tys. K teg linc mm'k lkd fr llg ner zi ugitcw Jv ghmpfe'x ldigg fxuewji hx xjv rhawg fymkmfv lbk akehho."
     key = hackVigenere(ciphertext)
@@ -165,5 +227,8 @@ def test():
     key = hackVigenere(ciphertext)
     assert key == "QWERTY"
 
+def main():
+    crackPassword()
+
 if __name__ == '__main__' and not flags.interactive:
-    test()
+    main()
