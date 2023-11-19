@@ -34,7 +34,7 @@
 Assignment 8 Problems 1, 2 and 3
 """
 from sys import flags
-import re, util
+import re, util, math
 import a6p1, a6p2, a7p234
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -176,19 +176,17 @@ def hackVigenere(ciphertext: str):
     # for each possible keylegnth, try to find
     bestScore = 0
     bestKey = ''
-    for keylen in keylens:
+    ngramfreqs = a6p1.ngramsFreqsFromFile("wells.txt", 3)
+    # asumme best key will be in top 3
+    for keylen in keylens[0:2]:
         possibleKeys = vigenereKeySolver(sanitizedCipher, keylen)
-        ngramfreqs = a6p1.ngramsFreqsFromFile("wells.txt", 3)
         # for each possible key decrypt the message and find the ngram score
         for key in possibleKeys:
             # decrypt off the current key
             decrypted = decryptVigenere(sanitizedCipher, key)
             # calculate the ngram score
             keyscore = a6p2.keyScore(decrypted, ngramfreqs, 3)
-            if key == 'QWERTY':
-                # if the keyscore is over this threshrold return it as being the best key
-                return key
-            elif keyscore > bestScore:
+            if keyscore > bestScore:
                 # store the best key found so far based off the keyscore
                 bestScore = keyscore
                 bestKey = key
@@ -202,7 +200,8 @@ def crackPassword():
         ciphertext = file.read()
         key = hackVigenere(ciphertext)
 
-        print(decryptVigenere(ciphertext, key))
+        with open("plaintext.txt", "w") as writeTo:
+            writeTo.write(decryptVigenere(ciphertext, key))
 
 def test():
     # vigenereKeySolver Tests
@@ -215,9 +214,17 @@ def test():
     assert best_keys[0] == "CRYPTO"
     
     # hackVigenere Tests
-    ciphertext = "XUOD QK H WRTEMFJI JOEP EBPGOATW JSZSZV OVVQY JWMY JHTNBAVR GU OMLLGG KYODPWU YSWMSH OK ZSSF AVZS BZPW"
+    ciphertext = "ANNMTVOAZPQYYPGYEZQPFEXMUFITOCZISINELOSGMMOAETIKDQGSYXTUTKIYUSKWYXATLCBLGGHGLLWZPEYXKFELIEUNMKJMLRMPSEYIPPOHAVMCRMUQVKTAZKKXVSOOVIEHKKNUMHMFYOAVVMITACZDIZQESKLHARKAVEUTBKXSNMHUNGTNKRKIETEJBJQGGZFQNUNFDEGUU"
     key = hackVigenere(ciphertext)
-    #assert key == "ECGLISH"
+    assert key == "MAGIC"
+
+    ciphertext = "AQNRXXXSTNSKCEPUQRUETZWGLAQIOBFKUFMGWIFKSYARFJSFWSPVXHLEMVQXLSYFVDVMPFWTMVUSIVSQGVBMAREKEOWVACSGYXKDITYSKTEGLINCMMKLKDFRLLGNERZIUGITCWJVGHMPFEXLDIGGFXUEWJIHXXJVRHAWGFYMKMFVLBKAKEHHO"
+    key = hackVigenere(ciphertext)
+    assert key == "SECRET"
+
+    ciphertext = "JDMJBQQHSEZNYAGVHDUJKCBQXPIOMUYPLEHQFWGVLRXWXZTKHWRUHKBUXPIGDCKFHBZKFZYWEQAVKCQXPVMMIKPMXRXEWFGCJDIIXQJKJKAGIPIOMRXWXZTKJUTZGEYOKFBLWPSSXLEJWVGQUOSUHLEPFFMFUNVVTBYJKZMUXARNBJBUSLZCJXETDFEIIJTGTPLVFMJDIIPFUJWTAMEHWKTPJOEXTGDSMCEUUOXZEJXWZVXLEQKYMGCAXFPYJYLKACIPEILKOLIKWMWXSLZFJWRVPRUHIMBQYKRUNPYJKTAPYOXDTQ"
+    key = hackVigenere(ciphertext)
+    assert key == "QWERTY"
 
     ciphertext = "A'q nrxx xst nskc epu qr uet zwg'l aqiobfk, uf M gwif ks yarf jsfwspv xh lemv qx ls yfvd. Vmpfwtmvu sivsqg vbmarek e owva csgy xkdi tys. K teg linc mm'k lkd fr llg ner zi ugitcw Jv ghmpfe'x ldigg fxuewji hx xjv rhawg fymkmfv lbk akehho."
     key = hackVigenere(ciphertext)
@@ -231,4 +238,4 @@ def main():
     crackPassword()
 
 if __name__ == '__main__' and not flags.interactive:
-    main()
+    test()
