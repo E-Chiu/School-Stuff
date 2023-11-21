@@ -37,18 +37,47 @@ Assignment 9 Problem 1
 from sys import flags
 from typing import Tuple
 
+def getPrime(n):
+    primes = []
+
+    for num in range(2, n):
+        for i in range(2, num):
+            if num%i == 0:
+                # if another number divides it break out
+                break
+        else:  
+            primes.append(num)
+    return primes
+
+def getFactors(primes, n):
+    for i in range(len(primes)):
+        for j in range(i, len(primes)):
+            if primes[i] * primes[j] == n:
+                p = primes[j]
+                q = primes[i]
+                return p, q
+
 def finitePrimeHack(t: int, n: int, e: int) -> Tuple[int, int, int]:
     """
     Hack RSA assuming there are no primes larger than t
     """
-    
-    for n in range(t):
-        pass
+    # get prime numbers
+    primes = getPrime(t)
+    primes.reverse()
+    # find 2 largest prime factors
+    p, q = getFactors(primes, n)
+    d = e % ((p-1) * (q-1))
+    d = pow(d, -1, (p-1) * (q-1))
+
+    return (p, q, d)
+
+
 
 
 def test():
     "Run tests"
     assert finitePrimeHack(100, 493, 5) == (17, 29, 269)
+    assert finitePrimeHack(2**16,2604135181,1451556085) == (48533,53657, 60765)
     # TODO: test thoroughly by writing your own regression tests
     # This function is ignored in our marking
 
