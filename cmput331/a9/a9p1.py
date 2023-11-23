@@ -36,33 +36,45 @@ Assignment 9 Problem 1
 
 from sys import flags
 from typing import Tuple
+import math
 
-def getPrime(n):
-    primes = []
+def primeSieve(sieveSize):
+     # Returns a list of prime numbers calculated using
+     # the Sieve of Eratosthenes algorithm.
 
-    for num in range(2, n):
-        for i in range(2, num):
-            if num%i == 0:
-                # if another number divides it break out
-                break
-        else:  
-            primes.append(num)
-    return primes
+     sieve = [True] * sieveSize
+     sieve[0] = False # Zero and one are not prime numbers.
+     sieve[1] = False
+
+     # Create the sieve:
+     for i in range(2, int(math.sqrt(sieveSize)) + 1):
+         pointer = i * 2
+         while pointer < sieveSize:
+             sieve[pointer] = False
+             pointer += i
+
+     # Compile the list of primes:
+     primes = []
+     for i in range(sieveSize):
+         if sieve[i] == True:
+             primes.append(i)
+
+     return primes
 
 def getFactors(primes, n):
-    for i in range(len(primes)):
-        for j in range(i, len(primes)):
-            if primes[i] * primes[j] == n:
-                p = primes[j]
-                q = primes[i]
-                return p, q
+    for prime in primes:
+        factor = n/prime
+        if factor in primes:
+            q = prime
+            p = int(factor)
+            return p, q
 
 def finitePrimeHack(t: int, n: int, e: int) -> Tuple[int, int, int]:
     """
     Hack RSA assuming there are no primes larger than t
     """
     # get prime numbers
-    primes = getPrime(t)
+    primes = primeSieve(t)
     primes.reverse()
     # find 2 largest prime factors
     p, q = getFactors(primes, n)
@@ -72,13 +84,16 @@ def finitePrimeHack(t: int, n: int, e: int) -> Tuple[int, int, int]:
     return (p, q, d)
 
 
-
-
 def test():
     "Run tests"
     assert finitePrimeHack(100, 493, 5) == (17, 29, 269)
     assert finitePrimeHack(2**16,2604135181,1451556085) == (48533,53657, 60765)
     # TODO: test thoroughly by writing your own regression tests
+    print(finitePrimeHack(2**14,160728233,8951))
+    print(finitePrimeHack(2**14,106646587,14023))
+    print(finitePrimeHack(2**14,255706897,9061))
+    print(finitePrimeHack(2**14,167131319,8215))
+    print(finitePrimeHack(2**14,186609961,11283))
     # This function is ignored in our marking
 
 

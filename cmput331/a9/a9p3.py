@@ -37,13 +37,22 @@ Assignment 9 Problem 3
 from sys import flags
 from typing import List
 
+SYMBOLS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 !?.'
 
 def blockSizeHack(blocks: List[int], n: int, e: int) -> str:
     """
     Hack RSA assuming a block size of 1
     """
-    raise NotImplementedError()
-
+    plaintext = ''
+    # brute force the first character
+    for block in blocks:
+        # brute force corresponding letter
+        for index in range(len(SYMBOLS)):
+            c = pow(index, e, n)
+            if block == c:
+                plaintext += SYMBOLS[index]
+                break
+    return plaintext
 
 def test():
     "Run tests"
