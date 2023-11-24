@@ -83,7 +83,6 @@ def finitePrimeHack(t: int, n: int, e: int) -> Tuple[int, int, int]:
 
     return (p, q, d)
 
-
 def test():
     "Run tests"
     assert finitePrimeHack(100, 493, 5) == (17, 29, 269)
@@ -95,7 +94,6 @@ def test():
     print(finitePrimeHack(2**14,167131319,8215))
     print(finitePrimeHack(2**14,186609961,11283))
     # This function is ignored in our marking
-
 
 # Invoke test() if called via `python3 a9p1.py`
 # but not if `python3 -i a9p1.py` or `from a9p1 import *`
