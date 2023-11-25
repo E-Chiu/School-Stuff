@@ -205,7 +205,12 @@ class FirstAvailable(VarSelector):
     """
     def select_variable(self, grid):
         # Implement here the first available heuristic
-        pass
+        cells = grid.get_cells()
+        for i in range(grid.get_width()):
+            for j in range(grid.get_width()):
+                if len(cells[i][j]) > 1:
+                    return (i, j)
+
 
 class MRV(VarSelector):
     """
@@ -213,7 +218,15 @@ class MRV(VarSelector):
     """
     def select_variable(self, grid):
         # Implement here the mrv heuristic
-        pass
+        cells = grid.get_cells()
+        lowestD = grid.get_width()
+        lowestCoord = (0,0)
+        for i in range(grid.get_width()):
+            for j in range(grid.get_width()):
+                if len(cells[i][j]) < lowestD:
+                    lowestD = len(cells[i][j])
+                    lowestCoord = (i, j)
+        return lowestCoord
 
 
 class AC3:
@@ -330,6 +343,10 @@ class Backtracking:
         Implements backtracking search with inference. 
         """
         # Implemente here the Backtracking search.
+        cells = grid.get_cells()
+        (i, j) = var_selector.select_variable()
+        for d in cells[i][j]:
+            pass
         pass
 
 
