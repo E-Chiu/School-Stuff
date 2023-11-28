@@ -302,7 +302,7 @@ class AC3:
                 grid.get_cells()[i][j] = new_domain
         return variables_assigned, False
 
-    def pre_process_consistency(self, grid, Q):
+    def pre_process_consistency(self, grid):
         """
         This method enforces arc consistency for the initial grid of the puzzle.
 
@@ -310,6 +310,7 @@ class AC3:
         already assigned in the initial grid. 
         """
         # Implement here the code for making the CSP arc consistent as a pre-processing step; this method should be called once before search
+        Q = []
         cells = grid.get_cells()
         for i in range(grid.get_width()):
             for j in range(grid.get_width()):
@@ -318,11 +319,7 @@ class AC3:
                     Q.append((i, j))
         # call consistency
         return self.consistency(grid, Q)
-
-    def add_Vars(self, Q, variables_assigned):
-        while len(variables_assigned) > 0:
-            Q.append(variables_assigned.pop())
-
+    
     def consistency(self, grid, Q):
         """
         This is a domain-specific implementation of AC3 for Sudoku. 
@@ -353,13 +350,11 @@ class AC3:
             variables_assigned2, fail2 = self.remove_domain_column(grid, row, column)
             variables_assigned3, fail3 = self.remove_domain_unit(grid, row, column)
             # check if any failed
-            if fail1 or fail2 or fail3: return False
+            if fail1 or fail2 or fail3: return True
             # add to Q
-            self.add_Vars(Q, variables_assigned1)
-            self.add_Vars(Q, variables_assigned2)
-            self.add_Vars(Q, variables_assigned3)
+            Q += variables_assigned1 + variables_assigned2 + variables_assigned3
 
-        return True
+        return False
 
 class Backtracking:
     """
@@ -371,29 +366,36 @@ class Backtracking:
         Implements backtracking search with inference. 
         """
         # Implement here the Backtracking search.
-        Q = []
         ac3 = AC3()
-        ac3.pre_process_consistency(grid, Q)
-        return self.backtracking(grid, var_selector, Q)
+        ac3.pre_process_consistency(grid)
+        return self.backtracking(grid, var_selector)
 
-    def backtracking(self, grid: list, var_selector: VarSelector, Q: list):
+    def backtracking(self, grid: list, var_selector: VarSelector):
         if grid.is_solved(): return grid
         ac3 = AC3()
         cells = grid.get_cells()
         var = var_selector.select_variable(grid)
         row = var[0]
         col = var[1]
+        # iterate through each possible value
         for d in cells[row][col]:
             if grid.is_value_consistent(d, row, col):
                 copy_grid = grid.copy()
-                copy_grid.get_cells()[row][col] = d
+                copy_cells = copy_grid.get_cells()
+                copy_cells[row][col] = d
+                # create queue
+                Q = []
                 Q.append(var)
+                # check for inference
                 ri = ac3.consistency(copy_grid, Q)
-                if ri:
-                    rb = self.backtracking(copy_grid, var_selector, Q)
-                    if rb:
+                if not ri:
+                    # recursive call
+                    rb = self.backtracking(copy_grid, var_selector)
+                    if not rb:
                         return rb
-        return False
+                # reset domain
+                copy_cells[row][col] = "123456789"
+        return True
 
 def main():
     # file = open('tutorial_problem.txt', 'r')
@@ -407,7 +409,9 @@ def main():
     # run the search
     backtracker = Backtracking()
     firstAvail = FirstAvailable()
-    backtracker.search(g, firstAvail)
+    returnV = backtracker.search(g, firstAvail)
+    if returnV == True:
+        print("failed")
 
     g.print_domains()
     g.print()
