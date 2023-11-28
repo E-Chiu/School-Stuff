@@ -220,7 +220,7 @@ class MRV(VarSelector):
     def select_variable(self, grid):
         # Implement here the mrv heuristic
         cells = grid.get_cells()
-        lowestD = grid.get_width()
+        lowestD = grid.get_width()+1
         lowestCoord = (0,0)
         for i in range(grid.get_width()):
             for j in range(grid.get_width()):
@@ -366,11 +366,12 @@ class Backtracking:
         """
         # Implement here the Backtracking search.
         ac3 = AC3()
-        #ac3.pre_process_consistency(grid)
+        ac3.pre_process_consistency(grid)
         return self.backtracking(grid, var_selector)
 
     def backtracking(self, grid: list, var_selector: VarSelector):
-        if grid.is_solved(): return grid
+        if grid.is_solved():
+            return grid
         ac3 = AC3()
         cells = grid.get_cells()
         # get unassgined var
@@ -392,31 +393,20 @@ class Backtracking:
                 if not ri:
                     # recursive call
                     rb = self.backtracking(copy_grid, var_selector)
-                    if not rb:
+                    if rb != True:
                         return rb
                 # reset domain
                 copy_cells[row][col] = originalDomain
         return True
 
 def main():
-    file = open('tutorial_problem.txt', 'r')
-    #file = open('top95.txt', 'r')
+    #file = open('tutorial_problem.txt', 'r')
+    file = open('top95.txt', 'r')
     problems = file.readlines()
 
-    # Read problem from string
-    g = Grid()
-    g.read_file(problems[0])
-
-    # run the search
-    backtracker = Backtracking()
-    firstAvail = MRV()
-    returnV = backtracker.search(g, firstAvail)
-    if returnV == True:
-        print("failed")
-
-    g.print_domains()
-    g.print()
-    return
+    running_time_mrv = []
+    running_time_first_available = []
+    startTotal = time.time()
     for p in problems:
         # Read problem from string
         g = Grid()
@@ -425,10 +415,21 @@ def main():
         # run the search
         backtracker = Backtracking()
         firstAvail = FirstAvailable()
-        backtracker.search(g, firstAvail)
+        mrv = MRV()
 
-        g.print_domains()
-        g.print()
+        start = time.time()
+        returnVal1 = backtracker.search(g, firstAvail)
+        running_time_first_available.append(time.time() - start)
+
+        start = time.time()
+        returnVal2 = backtracker.search(g, mrv)
+        running_time_mrv.append(time.time() - start)
+        if returnVal1 == True or returnVal2 == True:
+            print("failed on problem\n" + p)
+            return
+    print(time.time() - startTotal)
+    plotter = PlotResults()
+    plotter.plot_results(running_time_mrv, running_time_first_available,"Running Time Backtracking (MRV)","Running Time Backtracking (FA)", "running_time")
 
 
 def tutorial():
