@@ -224,7 +224,7 @@ class MRV(VarSelector):
         lowestCoord = (0,0)
         for i in range(grid.get_width()):
             for j in range(grid.get_width()):
-                if len(cells[i][j]) < lowestD:
+                if len(cells[i][j]) < lowestD and len(cells[i][j]) > 1:
                     lowestD = len(cells[i][j])
                     lowestCoord = (i, j)
         return lowestCoord
@@ -353,7 +353,6 @@ class AC3:
             if fail1 or fail2 or fail3: return True
             # add to Q
             Q += variables_assigned1 + variables_assigned2 + variables_assigned3
-
         return False
 
 class Backtracking:
@@ -367,16 +366,18 @@ class Backtracking:
         """
         # Implement here the Backtracking search.
         ac3 = AC3()
-        ac3.pre_process_consistency(grid)
+        #ac3.pre_process_consistency(grid)
         return self.backtracking(grid, var_selector)
 
     def backtracking(self, grid: list, var_selector: VarSelector):
         if grid.is_solved(): return grid
         ac3 = AC3()
         cells = grid.get_cells()
+        # get unassgined var
         var = var_selector.select_variable(grid)
         row = var[0]
         col = var[1]
+        originalDomain = cells[row][col]
         # iterate through each possible value
         for d in cells[row][col]:
             if grid.is_value_consistent(d, row, col):
@@ -394,12 +395,12 @@ class Backtracking:
                     if not rb:
                         return rb
                 # reset domain
-                copy_cells[row][col] = "123456789"
+                copy_cells[row][col] = originalDomain
         return True
 
 def main():
-    # file = open('tutorial_problem.txt', 'r')
-    file = open('top95.txt', 'r')
+    file = open('tutorial_problem.txt', 'r')
+    #file = open('top95.txt', 'r')
     problems = file.readlines()
 
     # Read problem from string
@@ -408,7 +409,7 @@ def main():
 
     # run the search
     backtracker = Backtracking()
-    firstAvail = FirstAvailable()
+    firstAvail = MRV()
     returnV = backtracker.search(g, firstAvail)
     if returnV == True:
         print("failed")
