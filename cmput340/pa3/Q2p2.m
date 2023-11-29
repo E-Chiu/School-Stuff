@@ -20,10 +20,13 @@ invKin3D(l, theta0, desired, n, mode);
 % c)
 steps = 6;
 [start, ~] = evalRobot3D(l, theta0);
+answer = [];
 for s = 1:steps
     pos = bezier(start, desired, steps, s);
-    invKin3D(l, theta0, desired, n, mode);
+    res = invKin3D(l, theta0, desired, n, mode);
+    answer = [answer res];
 end
+answer = answer
 
 % borrowing the bezier question from Q2p3
 function desired = bezier(start_pos, end_pos, steps, curr_segment)
