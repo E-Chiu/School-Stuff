@@ -1,12 +1,12 @@
-function theta = invKin2D(l, theta0, pos, n, mode)
+function theta = invKin3D(l,theta0,desired,n,mode)
 if mode == 1
     % Newton's method
     xk = theta0;    
     for k = 1:n
             % get the jacobian and current position
-            [currPos, J] = evalRobot2D(l, xk);
+            [currPos, J] = evalRobot3D(l, xk);
             % calculate the difference
-            f = currPos - pos;
+            f = currPos' - desired;
             fnorm = norm(f);
             % if norm is under threshold return it
             if fnorm < 0.001
@@ -23,11 +23,11 @@ elseif mode == 0
     % Broyden's
     xk = theta0;
     % get starting jacobian
-    [~, bk] = evalRobot2D(l, xk);
+    [~, bk] = evalRobot3D(l, xk);
     for k = 1:n
-        [currPos, ~] = evalRobot2D(l, xk);
+        [currPos, ~] = evalRobot3D(l, xk);
         % get difference
-        f = currPos - pos;
+        f = currPos' - desired;
         fnorm = norm(f);
             % if norm is under threshold return it
             if fnorm < 0.001
@@ -36,15 +36,11 @@ elseif mode == 0
             end
         sk = (bk*-1)\f;
         xk = xk + sk;
-        [currPos1, ~] = evalRobot2D(l, xk);
+        [currPos1, ~] = evalRobot3D(l, xk);
         % get the difference of xk+1
-        f1 = currPos1 - pos;
+        f1 = currPos1' - desired;
         yk = f1 - f;
         bk = bk + ((yk - bk*sk)*sk')/(sk'*sk);
     end
     theta = xk;
 end
-
-% Q1 4): For positions that are out of reach of the arm, Newton's method
-% will sometimes go to the max range the arm can reach or sometimes a
-% seemingly random other position. Broyden's method however will error out.
