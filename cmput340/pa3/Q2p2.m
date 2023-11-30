@@ -4,7 +4,7 @@ n = 1000;
 theta0 = [pi,pi,pi];
 theta = [pi/3, pi/4, pi/3]; %position here is 0.1094    0.1895    1.3690
 desired = [0, 0, 1];
-oppQuad = [-3, -3, -3]; %opposite quadrant is - - -
+oppQuad = [-1.5, -1.5, -1.5]; %opposite quadrant is - - -
 mode = 1;
 
 % test invKin3D
@@ -30,7 +30,7 @@ newton = invKin3D(l, theta0, desired, n, 1)';
 newtonBounds = invKin3D(l, theta0, oppQuad, n, 1)';
 
 % with bezier
-steps = 6;
+steps = 10;
 [start, ~] = evalRobot3D(l, theta);
 answer = [];
 for s = 1:steps

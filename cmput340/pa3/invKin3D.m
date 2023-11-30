@@ -7,8 +7,8 @@ if mode == 1
             [currPos, J] = evalRobot3D(l, xk);
             % calculate the difference
             f = currPos - desired;
-            fnorm = norm(f);
             % if norm is under threshold return it
+            fnorm = norm(f);
             if fnorm < 0.001
                 theta = xk;
                 return
@@ -28,12 +28,12 @@ elseif mode == 0
         [currPos, ~] = evalRobot3D(l, xk);
         % get difference
         f = currPos - desired;
+        % if norm is under threshold return it
         fnorm = norm(f);
-            % if norm is under threshold return it
-            if fnorm < 0.001
-                theta = xk;
-                return
-            end
+        if fnorm < 0.001
+            theta = xk;
+            return
+        end
         sk = (bk*-1)\f';
         xk = xk + sk';
         [currPos1, ~] = evalRobot3D(l, xk);

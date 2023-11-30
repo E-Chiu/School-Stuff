@@ -7,7 +7,7 @@ clf;
 
 ls=[0.8, 0.7];
 theta0=[3*pi/4, pi/2, pi]; %Choose some random starting point.
-n=9999;
+n=1000;
 mode = 1;
 %Start position
 desired=[0, -1, 0.75];
