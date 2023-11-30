@@ -5,12 +5,12 @@ clc;
 clf;
 
 
-ls=[0.8,0.7]';
+ls=[0.8, 0.7];
 theta0=[3*pi/4, pi/2, pi]; %Choose some random starting point.
-n=10;
+n=9999;
 mode = 1;
 %Start position
-desired=[-0.2, -0.2, 0.5];
+desired=[0, -1, 0.75];
 t=invKin3D(ls,theta0,desired,n,mode); 
 
            
@@ -37,12 +37,64 @@ steps = 6;
 %%% Make sure you update the obj_picked and obj_placed properly
 
 %%%%%%% Enter your code here    %%%%%%%%%%%%%%%%%%%%%
+canNum = 1;
+while canNum <= n_cans
+    % get positions
+    can_pos = start_can_pos(canNum,:);
+    belt_pos = end_can_pos(canNum,:);
+    [pos_hand, ~] = evalRobot3D(ls, t); 
+    for step = 1:steps
+        clf;
+        hold on;
+        if deliver
+            % draw arm moving to belt
+            next_pos = bezier(pos_hand, belt_pos, steps, step);
+            t=invKin3D(ls,theta0,next_pos,n,mode); 
+            if in_hand
+                % if holding a can add the can to the end effector
+                [pos_hand, ~] = evalRobot3D(ls, t); 
+                plotCylinderWithCaps(0.1,pos_hand,0.2,12,[1 0 0],'z');
+            end
+            if step == steps
+                % at the end the can is placed
+                obj_placed = obj_placed + 1;
+                deliver = 0;
+                in_hand = 0;
+                canNum = canNum + 1;
+            end
+        else
+            % draw arm moving to can
+            next_pos = bezier(pos_hand, can_pos, steps, step);
+            t=invKin3D(ls,theta0,next_pos,n,mode); 
+            if step == steps
+                % can is picked up
+                obj_picked = obj_picked + 1;
+                deliver = 1;
+                in_hand = 1;
+            end
+        end
+        % draw it
+        plot_scene(obj_picked, obj_placed, start_can_pos, end_can_pos, gca, ls, t);
+        drawnow();
+        hold off;
+    end
+end
+% return hand to last
+for step = 1:steps
+        clf;
+        hold on;
+        
+        next_pos = bezier(pos_hand, end_can_pos(:,end), steps, step);
+        t=invKin3D(ls,theta0,next_pos,n,mode);
 
-
+        plot_scene(obj_picked, obj_placed, start_can_pos, end_can_pos, gca, ls, t);
+        drawnow();
+        hold off;
+end
 
 
 %%%%%%%%%~~~~~END~~~~~~%%%%%%%%%%%%%%%%%%%
-        %When moving from table to converyor, plot can at the end of arm
+%When moving from table to converyor, plot can at the end of arm
 
 
 function desired = bezier(start_pos, end_pos, steps, curr_segment)
