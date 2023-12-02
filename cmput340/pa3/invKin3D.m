@@ -13,7 +13,7 @@ if mode == 1
                 theta = xk;
                 return
             end
-            sk = (J*-1)\f';
+            sk = (-J)\f';
             xk = xk + sk';
     end
     % return what we get

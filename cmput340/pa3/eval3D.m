@@ -5,12 +5,12 @@ clc;
 clf;
 
 
-ls=[0.8, 0.7];
-theta0=[3*pi/4, pi/2, pi]; %Choose some random starting point.
-n=1000;
+ls=[0.8,0.7]';
+theta0=[pi/2, pi/2, pi/2]; %Choose some random starting point.
+n=100;
 mode = 1;
 %Start position
-desired=[0, -1, 0.75];
+desired=[-0.2, -0.2, 0.5];
 t=invKin3D(ls,theta0,desired,n,mode); 
 
            
@@ -50,11 +50,6 @@ while canNum <= n_cans
             % draw arm moving to belt
             next_pos = bezier(pos_hand, belt_pos, steps, step);
             t=invKin3D(ls,theta0,next_pos,n,mode); 
-            if in_hand
-                % if holding a can add the can to the end effector
-                [pos_hand, ~] = evalRobot3D(ls, t); 
-                plotCylinderWithCaps(0.1,pos_hand,0.2,12,[1 0 0],'z');
-            end
             if step == steps
                 % at the end the can is placed
                 obj_placed = obj_placed + 1;
@@ -74,17 +69,22 @@ while canNum <= n_cans
             end
         end
         % draw it
+        if in_hand
+            % if holding a can add the can to the end effector
+            plotCylinderWithCaps(0.1,next_pos,0.2,12,[1 0 0],'z');
+        end
         plot_scene(obj_picked, obj_placed, start_can_pos, end_can_pos, gca, ls, t);
         drawnow();
         hold off;
     end
 end
-% return hand to last
+% return hand to start
+[pos_hand, ~] = evalRobot3D(ls, t); 
 for step = 1:steps
         clf;
         hold on;
         
-        next_pos = bezier(pos_hand, end_can_pos(:,end), steps, step);
+        next_pos = bezier(pos_hand, desired, steps, step);
         t=invKin3D(ls,theta0,next_pos,n,mode);
 
         plot_scene(obj_picked, obj_placed, start_can_pos, end_can_pos, gca, ls, t);
