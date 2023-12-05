@@ -33,7 +33,8 @@
 """
 Assignment 10
 """
-import string
+from sys import flags
+import string, glob
 from collections import Counter
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -83,34 +84,50 @@ def cliDPD(ciphertext: str, files):
         dict
     """
     returnDict = {}
-    # get ssd for ciphertext
-    DPDTuples = {}
+    # get ddpd for ciphertext
+    cipherDPD = {}
     for word in ciphertext:
         # remove punctuation
         word = word.translate(str.maketrans('', '', string.punctuation))
         letterCounts = Counter(word)
         DPDTuple = []
+        # get counts of letters and put into tuples
         for key, val in letterCounts.items():
             DPDTuple.append(val)
         DPDTuple.sort(reverse=True)
         DPDTuple = tuple(DPDTuple)
-        freq = ciphertext.count(letter)/len(ciphertext)
-        DPDTuples[DPDTuple] = 1;
+        # add to dictionary
+        if DPDTuple in cipherDPD:
+            cipherDPD[DPDTuple] += 1
+        else:
+            cipherDPD[DPDTuple] = 1
   
     for file in files:
         with open(file) as f:
-            #get ssd for current file
+            #get dpd for current file
             fileText = f.read().upper()
-            fileSSD = []
-            for letter in LETTERS:
-                freq = fileText.count(letter)/len(fileText)
-                fileSSD.append(letter, freq)
-            fileSSD.sort()
-        # compute the difference
-        DPDDiff = 0
-        for i in range(len(LETTERS)):
-            SSDDiff = (cipherSSD[i] - fileSSD[i])**2
-        returnDict[file] == SSDDiff
+            for word in fileText:
+                # remove punctuation
+                word = word.translate(str.maketrans('', '', string.punctuation))
+                letterCounts = Counter(word)
+                fileDPD = {}
+                DPDTuple = []
+                # get counts of letters and put into tuples
+                for key, val in letterCounts.items():
+                    DPDTuple.append(val)
+                DPDTuple.sort(reverse=True)
+                DPDTuple = tuple(DPDTuple)
+                # add to dictionary
+                if DPDTuple in fileDPD:
+                    fileDPD[DPDTuple] += 1
+                else:
+                    fileDPD[DPDTuple] = 1
+            # compute the difference
+            DPDDiff = 0
+            for key, val in fileDPD:
+                if key in cipherDPD:
+                    DPDDiff = (cipherDPD[key] - fileDPD[key])**2
+            returnDict[file] == DPDDiff
     return returnDict
 
 def cliSSDTest(ciphertext_files, sampletext_files):
@@ -121,7 +138,25 @@ def cliSSDTest(ciphertext_files, sampletext_files):
     Returns:
         dict
     """
-    raise NotImplementedError()
+    matchedDict = {}
+    for cipherFile in ciphertext_files:
+        f = open(cipherFile, encoding="utf8")
+        ciphertext = f.read()
+        # calculate the ssd
+        ssdDict = cliSSD(ciphertext, sampletext_files)
+        for key, value in ssdDict:
+            # store them in (ciphertext, value) tuples to keep track of best ciphertext
+            if key not in matchedDict:
+                matchedDict[key] == (ciphertext, value)
+            elif matchedDict[key][1] < value:
+                # if matches better replace in dict
+                matchedDict[key] = (ciphertext, value)
+    
+    for key, value in matchedDict:
+            # remove the tuple
+            matchedDict[key] = value[0]
+    return matchedDict
+
 
 def cliDPDTest(ciphertext_files, sampletext_files):
     """
@@ -135,7 +170,10 @@ def cliDPDTest(ciphertext_files, sampletext_files):
 
 
 def test():
-    raise NotImplementedError()
+    ciphertext_files = glob.glob("texts\\ciphertext*.txt")
+    sampletext_files = glob.glob("texts\\sample_*.txt")
+
+    cliSSDTest(ciphertext_files, sampletext_files)
 
 
 if __name__ == "__main__" and not flags.interactive:
