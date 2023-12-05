@@ -34,6 +34,7 @@
 Assignment 10
 """
 import string
+from collections import Counter
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -83,13 +84,18 @@ def cliDPD(ciphertext: str, files):
     """
     returnDict = {}
     # get ssd for ciphertext
-    dpdTuples = [] 
+    DPDTuples = {}
     for word in ciphertext:
         # remove punctuation
         word = word.translate(str.maketrans('', '', string.punctuation))
-        
+        letterCounts = Counter(word)
+        DPDTuple = []
+        for key, val in letterCounts.items():
+            DPDTuple.append(val)
+        DPDTuple.sort(reverse=True)
+        DPDTuple = tuple(DPDTuple)
         freq = ciphertext.count(letter)/len(ciphertext)
-        dpdTuples.append(freq)
+        DPDTuples[DPDTuple] = 1;
   
     for file in files:
         with open(file) as f:
@@ -101,7 +107,7 @@ def cliDPD(ciphertext: str, files):
                 fileSSD.append(letter, freq)
             fileSSD.sort()
         # compute the difference
-        SSDDiff = 0
+        DPDDiff = 0
         for i in range(len(LETTERS)):
             SSDDiff = (cipherSSD[i] - fileSSD[i])**2
         returnDict[file] == SSDDiff
